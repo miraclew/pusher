@@ -3,7 +3,6 @@ package restful
 import (
 	"encoding/json"
 	"net/http"
-	"reflect"
 	"strconv"
 )
 
@@ -22,16 +21,23 @@ type Controller interface {
 	Options()
 }
 
+type ApiResponse struct {
+	Code    int         `json:"Code"`
+	Message string      `json:"Message"`
+	Data    interface{} `json:"Data"`
+}
+
 type ApiController struct {
 	ResponseWriter http.ResponseWriter
 	Request        *http.Request
 	Id             int
-	Data           interface{}
+	Response       *ApiResponse
 }
 
 func (this *ApiController) Init(w http.ResponseWriter, r *http.Request) {
 	this.ResponseWriter = w
 	this.Request = r
+	this.Response = &ApiResponse{Code: 0, Message: "", Data: nil}
 	this.Id, _ = strconv.Atoi(this.Request.URL.Query().Get("id"))
 }
 
@@ -40,15 +46,9 @@ func (this *ApiController) Before() error {
 }
 
 func (this *ApiController) After() {
-	if this.Data != nil {
+	if this.Response != nil {
 		var response []byte
-		k := reflect.TypeOf(this.Data).Kind()
-		if k == reflect.String {
-			response = []byte(this.Data.(string))
-		} else {
-			response, _ = json.Marshal(this.Data)
-		}
-
+		response, _ = json.Marshal(this.Response)
 		this.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
 		//this.ResponseWriter.Header().Set("Content-Length", strconv.Itoa(len(response)))
 		this.ResponseWriter.WriteHeader(http.StatusOK)
