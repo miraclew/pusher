@@ -83,3 +83,13 @@ func (this *ApiController) Patch() {
 func (this *ApiController) Options() {
 	http.Error(this.ResponseWriter, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 }
+
+func (this *ApiController) Ok(data interface{}) {
+	this.Response.Code = 0
+	this.Response.Data = data
+}
+
+func (this *ApiController) Fail(code int, data interface{}) {
+	this.Response.Code = code
+	this.Response.Data = data
+}
