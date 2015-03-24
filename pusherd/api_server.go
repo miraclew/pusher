@@ -38,5 +38,5 @@ func httpServe(listener net.Listener) {
 }
 
 func root(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "welcome to pusher server.")
+	io.WriteString(w, "hello, welcome to push service (golang)")
 }
