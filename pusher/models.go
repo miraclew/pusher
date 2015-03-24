@@ -6,6 +6,7 @@ import (
 	"fmt"
 	r "github.com/dancannon/gorethink"
 	"io"
+	"log"
 	"strings"
 	"time"
 )
@@ -60,7 +61,7 @@ func GetChannelByMembers(members []string) (*Channel, error) {
 
 func FindChannelByHash(hash string) (*Channel, error) {
 	query := r.Db("mercury").Table("channels").Filter(r.Row.Field("hash").Eq(hash)).Limit(1)
-	res, err := query.Run(session)
+	res, err := query.Run(rdb)
 
 	if err != nil || res.IsNil() {
 		return nil, err
@@ -76,17 +77,24 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	channel := &Channel{Hash: hash, Members: members,
 		Type: CHANNEL_TYPE_NORMAL, CreatedAt: time.Now()}
 
-	res, err := r.Db("mercury").Table("channels").Insert(channel).RunWrite(session)
+	res, err := r.Db("mercury").Table("channels").Insert(channel).RunWrite(rdb)
 	if err != nil {
 		return nil, err
 	}
 
 	channel.Id = res.GeneratedKeys[0]
+
+	key := "cm" + channel.Id
+	res2 := redis.Cmd("sadd", key, members)
+	if res2.Err != nil {
+		log.Fatalf("sadd(%s) err: %s", key, res2.Err)
+	}
+
 	return channel, nil
 }
 
 func FindMessage(id string) (*Message, error) {
-	res, err := r.Db("mercury").Table("messages").Get(id).Run(session)
+	res, err := r.Db("mercury").Table("messages").Get(id).Run(rdb)
 	if err != nil || res.IsNil() {
 		return nil, err
 	}
@@ -97,7 +105,7 @@ func FindMessage(id string) (*Message, error) {
 }
 
 func CreateMessage(m *Message) (*Message, error) {
-	res, err := r.Db("mercury").Table("messages").Insert(m).RunWrite(session)
+	res, err := r.Db("mercury").Table("messages").Insert(m).RunWrite(rdb)
 	if err != nil {
 		return nil, err
 	}

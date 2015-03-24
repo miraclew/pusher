@@ -13,7 +13,14 @@ type ChannelController struct {
 func (this *ChannelController) Post() {
 	values := this.Request.PostForm
 
+	// sort, uniq, trim
 	members := util.SplitUniqSort(values.Get("members"))
+	c, err := pusher.GetChannelByMembers(members)
+	if err != nil {
+		this.Fail(500, nil)
+	}
 
-	this.Response.Data, _ = pusher.GetChannelByMembers(members)
+	this.Ok(map[string]interface{}{
+		"channel": c,
+	})
 }
