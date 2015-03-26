@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func init() {
+	Start("192.168.33.10:28015", "mercury", "192.168.33.10:6379")
+}
+
 // func TestFindChannelByHash(t *testing.T) {
 // 	res, err := FindChannelByHash("05cf281c050be3da4eecf3bc6e8aac1b")
 // 	if err != nil {

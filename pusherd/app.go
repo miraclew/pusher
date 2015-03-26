@@ -18,6 +18,9 @@ type App struct {
 }
 
 type AppOptions struct {
+	rethinkAddr string
+	rethinkDb   string
+	redisAddr   string
 }
 
 func NewApp(options *AppOptions) *App {
@@ -37,6 +40,8 @@ func NewAppOptions() *AppOptions {
 }
 
 func (a *App) Main() {
+	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr)
+
 	httpListener, err := net.Listen("tcp", a.httpAddr.String())
 	if err != nil {
 		log.Fatalf("FATAL: listen (%s) failed - %s", a.tcpAddr, err.Error())
@@ -59,6 +64,8 @@ func (a *App) Exit() {
 	if a.httpListener != nil {
 		a.httpListener.Close()
 	}
+
+	pusher.Stop()
 
 	close(a.exitChan)
 	a.waitGroup.Wait()

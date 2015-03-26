@@ -11,11 +11,12 @@ import (
 	"syscall"
 )
 
-var (
-	showVersion  = flag.Bool("version", false, "print version string")
-	reloadConfig = flag.Bool("reload", false, "reload config")
-	httpAddress  = flag.String("http-address", "0.0.0.0:8080", "<addr>:<port> to listen on for HTTP clients")
-	tcpAddress   = flag.String("tcp-address", "0.0.0.0:8081", "<addr>:<port> to listen on for TCP clients")
+var ( // pusher.Start("192.168.33.10:28015", "mercury", "192.168.33.10:6379")
+	showVersion = flag.Bool("version", false, "print version string")
+	httpAddress = flag.String("http", "0.0.0.0:8080", "<addr>:<port> to listen on for HTTP clients")
+	rethinkAddr = flag.String("rethinkAddr", "127.0.0.1:28015", "<addr>:<port> (127.0.0.1:28015) rethink address to connect")
+	rethinkDb   = flag.String("rethinkDb", "", "rethink db name")
+	redisAddr   = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 )
 
 func main() {
@@ -26,9 +27,9 @@ func main() {
 		return
 	}
 
-	if *reloadConfig {
-		fmt.Println("reloading config")
-		// TODO: not implemented
+	if *rethinkDb == "" {
+		fmt.Println("rethinkDb is required")
+		return
 	}
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", *httpAddress)
@@ -46,7 +47,11 @@ func main() {
 	}()
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	options := &AppOptions{}
+	options := &AppOptions{
+		rethinkAddr: *rethinkAddr,
+		rethinkDb:   *rethinkDb,
+		redisAddr:   *redisAddr,
+	}
 	app := NewApp(options)
 	app.httpAddr = httpAddr
 

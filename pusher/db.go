@@ -7,22 +7,35 @@ import (
 	"time"
 )
 
+const (
+	OPT_RETHINK_ADDRESS = 1
+	OPT_RETHINK_DB      = 2
+	OPT_REDIS_ADDRESS   = 3
+)
+
 var rdb *r.Session
 var redis *rds.Client
 
 func init() {
+}
+
+func Start(rethinkAddress string, rethinkDb string, redisAddress string) {
 	var err error
 	rdb, err = r.Connect(r.ConnectOpts{
-		Address:  "192.168.33.10:28015",
-		Database: "mercury",
+		Address:  rethinkAddress,
+		Database: rethinkDb,
 	})
 
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
-	redis, err = rds.DialTimeout("tcp", "192.168.33.10:6379", time.Duration(10)*time.Second)
+	redis, err = rds.DialTimeout("tcp", redisAddress, time.Duration(10)*time.Second)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+}
+
+func Stop() {
+
 }
