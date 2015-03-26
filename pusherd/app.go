@@ -48,7 +48,7 @@ func (a *App) Main() {
 	}
 	a.httpListener = httpListener
 
-	a.waitGroup.Add(1)
+	a.waitGroup.Add(2)
 	go func() {
 		httpServe(httpListener)
 		a.waitGroup.Done()
