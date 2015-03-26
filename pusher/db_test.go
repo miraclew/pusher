@@ -51,3 +51,18 @@ func TestCreateMessage(t *testing.T) {
 
 	fmt.Printf("%#v\n", r)
 }
+
+func TestGetUserIdByToke(t *testing.T) {
+	token := "test"
+	redis.Cmd("hmset", token, "user_id", 123)
+
+	userId, err := GetUserIdByToken(token)
+	if err != nil {
+		fmt.Println(err)
+		t.Fail()
+	}
+	if userId != 123 {
+		fmt.Println(userId)
+		t.Fail()
+	}
+}

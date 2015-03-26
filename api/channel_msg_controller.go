@@ -27,7 +27,8 @@ func (this *ChannelMsgController) Post() {
 		int(typ),
 		payload,
 		values.Get("sender_id"),
-		values.Get("options"),
+		// FIXME values.Get("options"),
+		nil,
 	)
 
 	pusher.CreateMessage(m)

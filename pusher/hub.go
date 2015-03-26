@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"strconv"
 )
@@ -14,15 +15,11 @@ const (
 	TYPE_BULK    = 3
 )
 
-type Connection interface {
-	SendUTF([]byte) error
-}
-
 type Hub struct {
-	connections map[int64]Connection
+	connections map[int64]io.ReadWriteCloser
 }
 
-func (h *Hub) AddConnection(userId int64, conn Connection) {
+func (h *Hub) AddConnection(userId int64, conn io.ReadWriteCloser) {
 	h.connections[userId] = conn
 }
 
@@ -38,7 +35,11 @@ func (h *Hub) pushMsg(msg *Message) {
 	}
 
 	if msg.Type == TYPE_PRIVATE || msg.Type == TYPE_GROUP {
-
+		h.toChannel(msg, msg.ChannelId)
+	} else {
+		//receivers := []string(msg.Options["receivers"])
+		//h.toUsers(msg, receivers)
+		//FIXME
 	}
 }
 
@@ -46,25 +47,26 @@ func (h *Hub) broadcast(msg *Message, online bool) {
 	for _, v := range h.connections {
 		payload, _ := json.Marshal(msg.Payload)
 		log.Println(payload, v)
-		v.SendUTF(payload)
+		v.Write(payload)
 	}
 }
 
 func (h *Hub) toUsers(msg *Message, users []int64) error {
 	skipSender := true
 	for i := 0; i < len(users); i++ {
-		u := users[i]
+		userId := users[i]
 		senderId, err := strconv.ParseInt(msg.SenderId, 10, 64)
 		if err != nil {
 			log.Println("Warn: msg senderId is not integer", msg)
 			continue
 		}
-		if u == senderId && skipSender {
-			log.Println("skipSender: ", u)
+		if userId == senderId && skipSender {
+			log.Println("skipSender: ", userId)
 			continue
 		}
 
 		// push to queue
+		h.pushToQueue(userId, msg, true)
 	}
 
 	return nil
@@ -75,7 +77,7 @@ func (h *Hub) sendToUser(userId int64, msg *Message) error {
 	if ok {
 		// send to user
 		payload, _ := json.Marshal(msg.Payload)
-		err := conn.SendUTF(payload)
+		_, err := conn.Write(payload)
 		if err != nil {
 			return err
 		}

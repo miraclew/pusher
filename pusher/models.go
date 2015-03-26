@@ -7,6 +7,7 @@ import (
 	r "github.com/dancannon/gorethink"
 	"io"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -25,16 +26,16 @@ type Channel struct {
 }
 
 type Message struct {
-	Id        string      `gorethink:"id,omitempty"`
-	ChannelId string      `gorethink:"channel_id"`
-	Type      int         `gorethink:"type"`
-	Payload   interface{} `gorethink:"payload"`
-	SenderId  string      `gorethink:"sender_id"`
-	Options   interface{} `gorethink:"options"`
-	CreatedAt time.Time   `gorethink:"created_at"`
+	Id        string                 `gorethink:"id,omitempty"`
+	ChannelId string                 `gorethink:"channel_id"`
+	Type      int                    `gorethink:"type"`
+	Payload   interface{}            `gorethink:"payload"`
+	SenderId  string                 `gorethink:"sender_id"`
+	Options   map[string]interface{} `gorethink:"options"`
+	CreatedAt time.Time              `gorethink:"created_at"`
 }
 
-func NewMessage(channelId string, typ int, payload interface{}, senderId string, options interface{}) *Message {
+func NewMessage(channelId string, typ int, payload interface{}, senderId string, options map[string]interface{}) *Message {
 	return &Message{
 		ChannelId: channelId, Type: typ, Payload: payload,
 		SenderId: senderId, Options: options, CreatedAt: time.Now(),
@@ -112,4 +113,20 @@ func CreateMessage(m *Message) (*Message, error) {
 
 	m.Id = res.GeneratedKeys[0]
 	return m, nil
+}
+
+func GetUserIdByToken(token string) (int64, error) {
+	fmt.Println("token:" + token)
+	res := redis.Cmd("hgetall", "token:"+token)
+
+	if res.Err != nil {
+		return 0, res.Err
+	}
+
+	h, err := res.Hash()
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.ParseInt(h["user_id"], 10, 64)
 }
