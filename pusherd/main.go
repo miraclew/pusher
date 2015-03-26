@@ -11,7 +11,7 @@ import (
 	"syscall"
 )
 
-var ( // pusher.Start("192.168.33.10:28015", "mercury", "192.168.33.10:6379")
+var (
 	showVersion = flag.Bool("version", false, "print version string")
 	httpAddress = flag.String("http", "0.0.0.0:8080", "<addr>:<port> to listen on for HTTP clients")
 	rethinkAddr = flag.String("rethinkAddr", "127.0.0.1:28015", "<addr>:<port> (127.0.0.1:28015) rethink address to connect")
