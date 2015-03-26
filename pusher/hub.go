@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/anachronistic/apns"
 	"io"
 	"log"
 	"strconv"
@@ -19,6 +20,18 @@ type Hub struct {
 	connections map[int64]io.ReadWriteCloser
 }
 
+var hub *Hub
+
+func GetHub() *Hub {
+	if hub == nil {
+		hub = &Hub{
+			make(map[int64]io.ReadWriteCloser),
+		}
+	}
+
+	return hub
+}
+
 func (h *Hub) AddConnection(userId int64, conn io.ReadWriteCloser) {
 	h.connections[userId] = conn
 }
@@ -27,7 +40,7 @@ func (h *Hub) RemoveConnection(userId int64) {
 	delete(h.connections, userId)
 }
 
-func (h *Hub) pushMsg(msg *Message) {
+func (h *Hub) PushMsg(msg *Message) {
 	log.Printf("pushMsg: %#v\n", msg)
 	if msg.ChannelId == "0" {
 		h.broadcast(msg, true)
@@ -67,6 +80,11 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 
 		// push to queue
 		h.pushToQueue(userId, msg, true)
+		var len int
+		len, err = h.processQueue(userId)
+		if err == nil && len > 0 {
+			h.pushToIosDevice(userId, msg, len)
+		}
 	}
 
 	return nil
@@ -149,7 +167,25 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 	}
 
 	if deviceToken, _ := res.Str(); deviceToken != "" {
-		// TODO: push to iOS device
+		payload := apns.NewPayload()
+		payload.Alert = "你有一条新的消息"
+		payload.Sound = "ping.aiff"
+		payload.Badge = length
+		if v, ok := msg.Options["apn_alert"]; ok {
+			payload.Alert = v
+		}
+
+		pn := apns.NewPushNotification()
+		pn.AddPayload(payload)
+
+		certificateFile := ""
+		keyFile := ""
+		client := apns.NewClient("gateway.sandbox.push.apple.com:2195", certificateFile, keyFile)
+		resp := client.Send(pn)
+
+		if !resp.Success {
+			log.Println(resp.Error)
+		}
 	} else {
 		log.Printf("user: %d offline, and has no apns device token\n", userId)
 	}

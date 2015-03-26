@@ -1,6 +1,7 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/pusher"
 	"log"
 	"net"
 	"sync"
@@ -13,6 +14,7 @@ type App struct {
 	httpListener net.Listener
 	waitGroup    sync.WaitGroup
 	exitChan     chan int
+	hub          *pusher.Hub
 }
 
 type AppOptions struct {
@@ -22,6 +24,7 @@ func NewApp(options *AppOptions) *App {
 	a := &App{
 		options:  options,
 		exitChan: make(chan int),
+		hub:      pusher.GetHub(),
 	}
 
 	return a
@@ -43,6 +46,11 @@ func (a *App) Main() {
 	a.waitGroup.Add(1)
 	go func() {
 		httpServe(httpListener)
+		a.waitGroup.Done()
+	}()
+
+	go func() {
+		wsServe(httpListener, a.hub)
 		a.waitGroup.Done()
 	}()
 }

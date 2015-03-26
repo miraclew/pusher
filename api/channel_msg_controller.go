@@ -32,7 +32,7 @@ func (this *ChannelMsgController) Post() {
 	)
 
 	pusher.CreateMessage(m)
-	// TODO: PUSH THE MESSAGE
+	pusher.GetHub().PushMsg(m)
 
 	this.Ok(map[string]interface{}{
 		"message": m,

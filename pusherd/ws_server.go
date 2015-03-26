@@ -48,7 +48,7 @@ func (w *WsServer) onConnected(conn *websocket.Conn) {
 	log.Printf("New connection, %s -> %d \n", token, userId)
 }
 
-func WsServe(listener net.Listener, bus Bus) {
+func wsServe(listener net.Listener, bus Bus) {
 	log.Printf("WS: listening on %s", listener.Addr().String())
 	s := NewWsServer(bus)
 
