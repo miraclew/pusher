@@ -3,6 +3,12 @@ IM Server (Golang)
 #About
 Instant messaging service like Weixin/QQ
 
+#Features
+1. Realtime message delivery
+2. Offline message store and resend
+3. History message store
+4. Support both Private and Group messages
+
 #Architecture
 
 ## Components
