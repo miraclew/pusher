@@ -1,4 +1,4 @@
-Push Server (Golang)
+IM Server (Golang)
 =======
 #About
 Instant messaging service like Weixin/QQ
