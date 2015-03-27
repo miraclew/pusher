@@ -9,6 +9,11 @@ Instant messaging service like Weixin/QQ
 3. History message store
 4. Support both Private and Group messages
 
+#Usage
+1. git clone https://coding.net/miraclew/pusher.git
+2. build pusher
+3. pusherd -rethinkDb="mercury" -rethinkAddr="192.168.33.10:28015" -redisAddr="192.168.33.10:6379"
+
 #Architecture
 
 ## Components
