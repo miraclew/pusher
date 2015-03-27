@@ -1,6 +1,7 @@
-Golang Push Server
+Push Server (Golang)
 =======
 #Pusher
+Instant Messaging service like Weixin/QQ
 
 # Cross build for linux
 GOOS=linux GOARCH=amd64 go build  
