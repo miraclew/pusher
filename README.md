@@ -16,7 +16,7 @@ Instant messaging service like Weixin/QQ
 2. Websocket connection to push realtime message
 
 ## Data storage
-1. Redis (auth token, user message queue, apn device token)
+1. Redis (auth token, channel members, user message queue, apn device token)
 2. RethinkDb (channels, messages)
 
 # Cross build
