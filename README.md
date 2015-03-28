@@ -25,7 +25,7 @@ Instant messaging service like Weixin/QQ
 2. RethinkDb (channels, messages)
 
 # Cross build
-For linux  
+Build for linux on mac
 
 GOOS=linux GOARCH=amd64 go build  
 GOOS=linux GOARCH=amd64 go install  
