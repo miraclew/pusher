@@ -1,20 +1,24 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/api"
 	"coding.net/miraclew/pusher/pusher"
-	"log"
+	// "coding.net/miraclew/pusher/restful"
+	"github.com/codegangsta/negroni"
+	"github.com/gorilla/pat"
 	"net"
+	"net/http"
 	"sync"
 )
 
 type App struct {
-	options      *AppOptions
-	tcpAddr      *net.TCPAddr
-	httpAddr     *net.TCPAddr
-	httpListener net.Listener
-	waitGroup    sync.WaitGroup
-	exitChan     chan int
-	hub          *pusher.Hub
+	options   *AppOptions
+	tcpAddr   *net.TCPAddr
+	httpAddr  *net.TCPAddr
+	listener  net.Listener
+	waitGroup sync.WaitGroup
+	exitChan  chan int
+	hub       *pusher.Hub
 }
 
 type AppOptions struct {
@@ -42,27 +46,26 @@ func NewAppOptions() *AppOptions {
 func (a *App) Main() {
 	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr)
 
-	httpListener, err := net.Listen("tcp", a.httpAddr.String())
-	if err != nil {
-		log.Fatalf("FATAL: listen (%s) failed - %s", a.tcpAddr, err.Error())
-	}
-	a.httpListener = httpListener
+	p := pat.New()
+	p.Get("/ws", WSHandler)
 
-	a.waitGroup.Add(2)
-	go func() {
-		httpServe(httpListener)
-		a.waitGroup.Done()
-	}()
+	p.Get("/", WSHandler)
+	p.Get("/about", api.HandleAbout)
+	p.Post("/channel", api.HandleChannel)
+	p.Post("/channel_msg", api.HandleChannelMsg)
+	p.Post("/private_msg", api.HandlePrivateMsg)
+
+	n := negroni.Classic()
+	n.UseHandler(p)
 
 	go func() {
-		wsServe(httpListener, a.hub)
-		a.waitGroup.Done()
+		http.ListenAndServe(":9010", n)
 	}()
 }
 
 func (a *App) Exit() {
-	if a.httpListener != nil {
-		a.httpListener.Close()
+	if a.listener != nil {
+		a.listener.Close()
 	}
 
 	pusher.Stop()

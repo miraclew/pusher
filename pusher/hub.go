@@ -1,11 +1,10 @@
 package pusher
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/anachronistic/apns"
-	"io"
+	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
 )
@@ -17,7 +16,7 @@ const (
 )
 
 type Hub struct {
-	connections map[int64]io.ReadWriteCloser
+	connections map[int64]*websocket.Conn
 }
 
 var hub *Hub
@@ -25,14 +24,14 @@ var hub *Hub
 func GetHub() *Hub {
 	if hub == nil {
 		hub = &Hub{
-			make(map[int64]io.ReadWriteCloser),
+			make(map[int64]*websocket.Conn),
 		}
 	}
 
 	return hub
 }
 
-func (h *Hub) AddConnection(userId int64, conn io.ReadWriteCloser) {
+func (h *Hub) AddConnection(userId int64, conn *websocket.Conn) {
 	h.connections[userId] = conn
 }
 
@@ -58,9 +57,7 @@ func (h *Hub) PushMsg(msg *Message) {
 
 func (h *Hub) broadcast(msg *Message, online bool) {
 	for _, v := range h.connections {
-		payload, _ := json.Marshal(msg.Payload)
-		log.Println(payload, v)
-		v.Write(payload)
+		v.WriteJSON(msg.Payload)
 	}
 }
 
@@ -93,9 +90,7 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 func (h *Hub) sendToUser(userId int64, msg *Message) error {
 	conn, ok := h.connections[userId]
 	if ok {
-		// send to user
-		payload, _ := json.Marshal(msg.Payload)
-		_, err := conn.Write(payload)
+		err := conn.WriteJSON(msg.Payload)
 		if err != nil {
 			return err
 		}

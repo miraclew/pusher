@@ -2,67 +2,48 @@ package main
 
 import (
 	"coding.net/miraclew/pusher/pusher"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 	"io"
 	"log"
-	"net"
 	"net/http"
-	"strings"
 )
 
-type Bus interface {
+type ConnectionManager interface {
 	AddConnection(int64, io.ReadWriteCloser)
 	RemoveConnection(int64)
 }
 
-type WsServer struct {
-	doneCh chan bool
-	errCh  chan error
-	bus    Bus
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin:     func(r *http.Request) bool { return true },
+	Subprotocols:    []string{"gx-v1", "gx-v2"},
 }
 
-var wsServer *WsServer
-
-func NewWsServer(bus Bus) *WsServer {
-	if wsServer == nil {
-		wsServer = &WsServer{
-			make(chan bool),
-			make(chan error),
-			bus,
-		}
+func WSHandler(res http.ResponseWriter, req *http.Request) {
+	conn, err := upgrader.Upgrade(res, req, nil)
+	if err != nil {
+		log.Println(err)
+		return
 	}
 
-	return wsServer
-}
+	token := req.URL.Query().Get("token")
+	conn.WriteJSON(map[string]interface{}{"welcome": "bob"})
 
-func (w *WsServer) onConnected(conn *websocket.Conn) {
-	var userId int64
-	token := conn.Request().URL.Query().Get("token")
 	userId, err := pusher.GetUserIdByToken(token)
-	//conn.Write([]byte("Token invalid, Good bye!"))
 	if err != nil || userId <= 0 {
+		log.Printf("Auth failed, protocol=%s token=%s\n", conn.Subprotocol(), token)
 		conn.Close()
 	}
 
-	w.bus.AddConnection(userId, conn)
-	log.Printf("New connection, %s -> %d \n", token, userId)
-}
+	pusher.GetHub().AddConnection(userId, conn)
+	log.Printf("New connection, protocol=%s token=%s\n", conn.Subprotocol(), token)
 
-func wsServe(listener net.Listener, bus Bus) {
-	log.Printf("WS: listening on %s", listener.Addr().String())
-	s := NewWsServer(bus)
-
-	wsHandler := &websocket.Server{Handler: websocket.Handler(s.onConnected)}
-
-	httpServer := &http.Server{
-		Handler: wsHandler,
+	// Reading loop, required
+	for {
+		if _, _, err := conn.NextReader(); err != nil {
+			conn.Close()
+			break
+		}
 	}
-
-	err := httpServer.Serve(listener)
-	// theres no direct way to detect this error because it is not exposed
-	if err != nil && !strings.Contains(err.Error(), "use of closed network connection") {
-		log.Printf("ERROR: ws.Serve() - %s", err.Error())
-	}
-
-	log.Printf("HTTP: closing %s", listener.Addr().String())
 }
