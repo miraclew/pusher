@@ -31,14 +31,14 @@ type Message struct {
 	Type      int                    `gorethink:"type" json:"type"`
 	Payload   interface{}            `gorethink:"payload" json:"payload"`
 	SenderId  string                 `gorethink:"sender_id" json:"sender_id"`
-	Options   map[string]interface{} `gorethink:"options" json:"options"`
+	Opts      map[string]interface{} `gorethink:"opts" json:"opts"`
 	CreatedAt time.Time              `gorethink:"created_at" json:"created_at"`
 }
 
-func NewMessage(channelId string, typ int, payload interface{}, senderId string, options map[string]interface{}) *Message {
+func NewMessage(channelId string, typ int, payload interface{}, senderId string, opts map[string]interface{}) *Message {
 	return &Message{
 		ChannelId: channelId, Type: typ, Payload: payload,
-		SenderId: senderId, Options: options, CreatedAt: time.Now(),
+		SenderId: senderId, Opts: opts, CreatedAt: time.Now(),
 	}
 }
 

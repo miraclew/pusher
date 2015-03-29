@@ -181,7 +181,7 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		payload.Alert = "你有一条新的消息"
 		payload.Sound = "ping.aiff"
 		payload.Badge = length
-		if v, ok := msg.Options["apn_alert"]; ok {
+		if v, ok := msg.Opts["apn_alert"]; ok {
 			payload.Alert = v
 		}
 

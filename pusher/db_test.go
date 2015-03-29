@@ -70,3 +70,17 @@ func TestGetUserIdByToke(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestJSON(t *testing.T) {
+	// s := `{"type":1,"sender_id":"1000","channel_id":"0a677b69-500c-4a95-a7e0-47aafb116248","payload":"{\"id\":\"rWAwnseKWXtd8FyN\",\"type\":1,\"sub_type\":1001,\"chat_id\":\"294\",\"sender_id\":\"1000\",\"ttl\":0,\"sent_at\":\"2015-03-29 19:03:24\",\"body\":{\"mime\":\"text\",\"content\":{\"text\":\"38\"}},\"extra\":{\"sender_name\":\"\\u5ba2\\u670d\",\"sender_avatar\":\"http:\\\/\\\/static.lover1314.me\\\/icons\\\/icon.png\"}}","push_offline":true,"opts":{"apn_alert":"\u5ba2\u670d:38"}}`
+
+	// var msg *Message
+	// err := json.Unmarshal([]byte(s), &msg)
+	// if err != nil {
+	// 	t.Fail()
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// fmt.Printf("%#v", msg)
+}
