@@ -3,6 +3,7 @@ package pusher
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	r "github.com/dancannon/gorethink"
 	"io"
@@ -18,21 +19,21 @@ const (
 )
 
 type Channel struct {
-	Id        string    `gorethink:"id,omitempty"`
-	Hash      string    `gorethink:"hash"`
-	Members   []string  `gorethink:"members"`
-	Type      int       `gorethink:"type"`
-	CreatedAt time.Time `gorethink:"created_at"`
+	Id        string    `gorethink:"id,omitempty" json:"id"`
+	Hash      string    `gorethink:"hash" json:"hash"`
+	Members   []string  `gorethink:"members" json:"members"`
+	Type      int       `gorethink:"type" json:"type"`
+	CreatedAt time.Time `gorethink:"created_at" json:"created_at"`
 }
 
 type Message struct {
-	Id        string                 `gorethink:"id,omitempty"`
-	ChannelId string                 `gorethink:"channel_id"`
-	Type      int                    `gorethink:"type"`
-	Payload   interface{}            `gorethink:"payload"`
-	SenderId  string                 `gorethink:"sender_id"`
-	Options   map[string]interface{} `gorethink:"options"`
-	CreatedAt time.Time              `gorethink:"created_at"`
+	Id        string                 `gorethink:"id,omitempty" json:"id"`
+	ChannelId string                 `gorethink:"channel_id" json:"channel_id"`
+	Type      int                    `gorethink:"type" json:"type"`
+	Payload   interface{}            `gorethink:"payload" json:"payload"`
+	SenderId  string                 `gorethink:"sender_id" json:"sender_id"`
+	Options   map[string]interface{} `gorethink:"options" json:"options"`
+	CreatedAt time.Time              `gorethink:"created_at" json:"created_at"`
 }
 
 func NewMessage(channelId string, typ int, payload interface{}, senderId string, options map[string]interface{}) *Message {
@@ -47,14 +48,13 @@ func GetChannelByMembers(members []string) (*Channel, error) {
 	io.WriteString(h, strings.Join(members, ","))
 	hash := hex.EncodeToString(h.Sum(nil))
 
-	fmt.Println(hash)
 	channel, err := FindChannelByHash(hash)
 	if err != nil {
 		return channel, err
 	}
 
 	if channel == nil {
-		return CreateChannel(hash, members)
+		channel, err = CreateChannel(hash, members)
 	}
 
 	return channel, err
@@ -75,6 +75,10 @@ func FindChannelByHash(hash string) (*Channel, error) {
 }
 
 func CreateChannel(hash string, members []string) (*Channel, error) {
+	if len(hash) <= 0 || len(members) <= 0 {
+		return nil, errors.New("hash or members is empty")
+	}
+
 	channel := &Channel{Hash: hash, Members: members,
 		Type: CHANNEL_TYPE_NORMAL, CreatedAt: time.Now()}
 
@@ -88,7 +92,7 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	key := "cm" + channel.Id
 	res2 := redis.Cmd("sadd", key, members)
 	if res2.Err != nil {
-		log.Fatalf("sadd(%s) err: %s", key, res2.Err)
+		log.Printf("sadd(%s) err: %s", key, res2.Err)
 	}
 
 	return channel, nil

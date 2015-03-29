@@ -30,12 +30,16 @@ func Start(rethinkAddress string, rethinkDb string, redisAddress string) {
 		log.Fatalln(err.Error())
 	}
 
+	log.Printf("rethink db connected: %s/%s", rethinkAddress, rethinkDb)
+
 	redis, err = rds.DialTimeout("tcp", redisAddress, time.Duration(10)*time.Second)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	log.Printf("redis connected: %s", redisAddress)
 }
 
 func Stop() {
-
+	rdb.Close()
+	redis.Close()
 }

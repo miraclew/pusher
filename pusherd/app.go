@@ -3,7 +3,6 @@ package main
 import (
 	"coding.net/miraclew/pusher/api"
 	"coding.net/miraclew/pusher/pusher"
-	// "coding.net/miraclew/pusher/restful"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/pat"
 	"net"
@@ -51,8 +50,8 @@ func (a *App) Main() {
 
 	p.Get("/", WSHandler)
 	p.Get("/about", api.HandleAbout)
-	p.Post("/channel", api.HandleChannel)
 	p.Post("/channel_msg", api.HandleChannelMsg)
+	p.Post("/channel", api.HandleChannel)
 	p.Post("/private_msg", api.HandlePrivateMsg)
 
 	n := negroni.Classic()
