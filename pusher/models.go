@@ -89,12 +89,13 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 
 	channel.Id = res.GeneratedKeys[0]
 
-	key := "cm" + channel.Id
+	key := "cm:" + channel.Id
 	res2 := redis.Cmd("sadd", key, members)
 	if res2.Err != nil {
 		log.Printf("sadd(%s) err: %s", key, res2.Err)
 	}
 
+	log.Println("redis sadd", key, members)
 	return channel, nil
 }
 

@@ -28,7 +28,6 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	token := req.URL.Query().Get("token")
-	conn.WriteJSON(map[string]interface{}{"welcome": "bob"})
 
 	userId, err := pusher.GetUserIdByToken(token)
 	if err != nil || userId <= 0 {
@@ -37,8 +36,9 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	pusher.GetHub().AddConnection(userId, conn)
-	log.Printf("New connection, protocol=%s token=%s\n", conn.Subprotocol(), token)
+	log.Printf("New connection, protocol=%s token=%s userId=%d\n", conn.Subprotocol(), token, userId)
 
+	conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
 	// Reading loop, required
 	for {
 		if _, _, err := conn.NextReader(); err != nil {

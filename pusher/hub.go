@@ -33,6 +33,7 @@ func GetHub() *Hub {
 
 func (h *Hub) AddConnection(userId int64, conn *websocket.Conn) {
 	h.connections[userId] = conn
+	h.processQueue(userId)
 }
 
 func (h *Hub) RemoveConnection(userId int64) {
@@ -155,6 +156,7 @@ func (h *Hub) processQueue(userId int64) (length int, err error) {
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
+	log.Println("try pushToIosDevice: ", userId, length)
 	res := redis.Cmd("get", fmt.Sprintf("apn_u2t:%d", userId))
 	if res.Err != nil {
 		log.Println(res.Err)
@@ -205,5 +207,6 @@ func (h *Hub) toChannel(msg *Message, channelId string) error {
 		users = append(users, userId)
 	}
 
+	log.Println("toUsers: ", users)
 	return h.toUsers(msg, users)
 }

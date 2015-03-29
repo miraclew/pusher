@@ -3,6 +3,7 @@ package api
 import (
 	"coding.net/miraclew/pusher/pusher"
 	"encoding/json"
+	"fmt"
 	"github.com/miraclew/mrs/util"
 	"log"
 	"net/http"
@@ -51,10 +52,16 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	_payload := values.Get("payload")
+	if len(_payload) <= 0 {
+		respondFail(res, http.StatusBadRequest, "payload is required")
+		return
+	}
+
 	var payload interface{}
-	err := json.Unmarshal([]byte(values.Get("payload")), payload)
+	err := json.Unmarshal([]byte(_payload), &payload)
 	if err != nil {
-		respondFail(res, http.StatusBadRequest, "payload malformed")
+		respondFail(res, http.StatusBadRequest, fmt.Sprintf("payload malformed: %s", err.Error()))
 		return
 	}
 
