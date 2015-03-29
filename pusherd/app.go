@@ -47,13 +47,14 @@ func (a *App) Main() {
 	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr)
 
 	p := pat.New()
-	p.Get("/ws", WSHandler)
 
-	p.Get("/", WSHandler)
 	p.Get("/about", api.HandleAbout)
 	p.Post("/channel_msg", api.HandleChannelMsg)
 	p.Post("/channel", api.HandleChannel)
 	p.Post("/private_msg", api.HandlePrivateMsg)
+
+	p.Get("/ws", WSHandler)
+	p.Get("/", WSHandler)
 
 	n := negroni.Classic()
 	n.UseHandler(p)

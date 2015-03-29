@@ -176,7 +176,7 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 	}
 
 	if deviceToken, _ := res.Str(); deviceToken != "" {
-		log.Printf("Try pushToIosDevice: userId:%d length:%d deviceToken=%s", userId, length, deviceToken)
+		log.Printf("apns msgId:%s userId:%d len:%d deviceToken=%s", msg.Id, userId, length, deviceToken)
 		payload := apns.NewPayload()
 		payload.Alert = "你有一条新的消息"
 		payload.Sound = "ping.aiff"
@@ -195,7 +195,9 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		resp := client.Send(pn)
 
 		if !resp.Success {
-			log.Println(resp.Error)
+			log.Printf("apns msgId:%s err: ", msg.Id, resp.Error)
+		} else {
+			log.Printf("apns msgId:%s success", msg.Id)
 		}
 	} else {
 		log.Printf("user: %d offline, and has no apns device token\n", userId)
