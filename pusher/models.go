@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	r "github.com/dancannon/gorethink"
 	"io"
 	"log"
@@ -121,7 +120,6 @@ func CreateMessage(m *Message) (*Message, error) {
 }
 
 func GetUserIdByToken(token string) (int64, error) {
-	fmt.Println("token:" + token)
 	res := redis.Cmd("hgetall", "token:"+token)
 
 	if res.Err != nil {

@@ -31,18 +31,22 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	userId, err := pusher.GetUserIdByToken(token)
 	if err != nil || userId <= 0 {
-		log.Printf("Auth failed, protocol=%s token=%s\n", conn.Subprotocol(), token)
+		log.Printf("Auth failed, protocol=%s token=%s, err: %s\n", conn.Subprotocol(), token, err.Error())
 		conn.Close()
+		return
 	}
 
-	pusher.GetHub().AddConnection(userId, conn)
+	conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
 	log.Printf("New connection, protocol=%s token=%s userId=%d\n", conn.Subprotocol(), token, userId)
 
-	conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
+	pusher.GetHub().RemoveConnection(userId)
+	pusher.GetHub().AddConnection(userId, conn)
 	// Reading loop, required
 	for {
 		if _, _, err := conn.NextReader(); err != nil {
+			log.Println("Disconnect ", userId)
 			conn.Close()
+			pusher.GetHub().RemoveConnection(userId)
 			break
 		}
 	}

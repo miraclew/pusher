@@ -78,28 +78,28 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 
 		// push to queue
 		h.pushToQueue(userId, msg, true)
-		var len int
-		len, err = h.processQueue(userId)
-		if err == nil && len > 0 {
-			h.pushToIosDevice(userId, msg, len)
+		var length int
+		length, err = h.processQueue(userId)
+		if length > 0 || err != nil {
+			go h.pushToIosDevice(userId, msg, length)
 		}
 	}
 
 	return nil
 }
 
-func (h *Hub) sendToUser(userId int64, msg *Message) error {
+func (h *Hub) sendToUser(userId int64, msg *Message) (ok bool, err error) {
 	conn, ok := h.connections[userId]
 	if ok {
-		err := conn.WriteJSON(msg.Payload)
+		err = conn.WriteJSON(msg.Payload)
 		if err != nil {
-			return err
+			return false, err
 		}
+		return true, err
 	} else {
 		h.pushToQueue(userId, msg, false)
+		return false, nil
 	}
-
-	return nil
 }
 
 func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, err error) {
@@ -118,52 +118,65 @@ func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, er
 }
 
 func (h *Hub) processQueue(userId int64) (length int, err error) {
-	res := redis.Cmd("rpop", fmt.Sprintf("mq:%d", userId))
+	log.Println("processQueue: ", userId)
+	res := redis.Cmd("llen", fmt.Sprintf("mq:%d", userId))
 	if res.Err != nil {
 		log.Println(res.Err)
 		return -1, res.Err
 	}
+	length, _ = res.Int()
 
+	if length <= 0 {
+		return 0, nil
+	}
+
+	res = redis.Cmd("rpop", fmt.Sprintf("mq:%d", userId))
+	if res.Err != nil {
+		log.Println(res.Err)
+		return length, res.Err
+	}
+
+	length -= 1
 	var msgId string
 	msgId, err = res.Str()
 	if err != nil {
-		return -1, err
+		return length, err
 	}
 
 	var msg *Message
 	msg, err = FindMessage(msgId)
 
 	if err != nil {
-		return -1, err
+		return length, err
 	}
 
 	if msg == nil {
-		return -1, errors.New(fmt.Sprintf("msgId: %s not found", msgId))
+		return length, errors.New(fmt.Sprintf("msgId: %s not found", msgId))
 	}
 
-	err = h.sendToUser(userId, msg)
-	if err != nil {
-		return -1, err
+	var ok bool
+	ok, err = h.sendToUser(userId, msg)
+	if !ok || err != nil {
+		return length + 1, err
 	}
 
-	res = redis.Cmd("llen", fmt.Sprintf("mq:%d", userId))
-	if res.Err != nil {
-		log.Println(res.Err)
-		return -1, res.Err
+	if length > 0 {
+		log.Println("mq len: ", length)
+		return h.processQueue(userId)
 	}
 
-	return res.Int()
+	return 0, nil
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
-	log.Println("try pushToIosDevice: ", userId, length)
 	res := redis.Cmd("get", fmt.Sprintf("apn_u2t:%d", userId))
 	if res.Err != nil {
-		log.Println(res.Err)
+		log.Println("pushToIosDevice error: ", res.Err)
 		return res.Err
 	}
 
 	if deviceToken, _ := res.Str(); deviceToken != "" {
+		log.Printf("Try pushToIosDevice: userId:%d length:%d deviceToken=%s", userId, length, deviceToken)
 		payload := apns.NewPayload()
 		payload.Alert = "你有一条新的消息"
 		payload.Sound = "ping.aiff"
@@ -173,10 +186,11 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		}
 
 		pn := apns.NewPushNotification()
+		pn.DeviceToken = deviceToken
 		pn.AddPayload(payload)
 
-		certificateFile := ""
-		keyFile := ""
+		certificateFile := "cert/cert.pem"
+		keyFile := "cert/key.unencrypted.pem"
 		client := apns.NewClient("gateway.sandbox.push.apple.com:2195", certificateFile, keyFile)
 		resp := client.Send(pn)
 

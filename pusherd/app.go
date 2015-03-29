@@ -5,6 +5,7 @@ import (
 	"coding.net/miraclew/pusher/pusher"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/pat"
+	"log"
 	"net"
 	"net/http"
 	"sync"
@@ -13,7 +14,6 @@ import (
 type App struct {
 	options   *AppOptions
 	tcpAddr   *net.TCPAddr
-	httpAddr  *net.TCPAddr
 	listener  net.Listener
 	waitGroup sync.WaitGroup
 	exitChan  chan int
@@ -24,6 +24,7 @@ type AppOptions struct {
 	rethinkAddr string
 	rethinkDb   string
 	redisAddr   string
+	httpAddr    string
 }
 
 func NewApp(options *AppOptions) *App {
@@ -58,7 +59,11 @@ func (a *App) Main() {
 	n.UseHandler(p)
 
 	go func() {
-		http.ListenAndServe(":9010", n)
+		log.Println("http listen ", a.options.httpAddr)
+		err := http.ListenAndServe(a.options.httpAddr, n)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}()
 }
 
