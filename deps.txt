@@ -1,3 +1,8 @@
-go get github.com/fzzy/radix
-go get golang.org/x/net/websocket
-go get github.com/anachronistic/apns
+go get
+
+"github.com/gorilla/websocket"
+"github.com/codegangsta/negroni"
+"github.com/gorilla/pat"
+
+"github.com/fzzy/radix"
+"github.com/anachronistic/apns"
