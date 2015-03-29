@@ -17,10 +17,12 @@ func HandleChannel(res http.ResponseWriter, req *http.Request) {
 	var body map[string]interface{}
 	err := json.Unmarshal(data, &body)
 	if err != nil {
-		log.Println("body malformed: " + err.Error())
+		log.Printf("body malformed: body=%s err=%s", string(data), err.Error())
 		respondFail(res, http.StatusBadRequest, "body malformed: "+err.Error())
 		return
 	}
+
+	log.Printf("HandleChannelMsg(%#v)", body)
 
 	// sort, uniq, trim
 	members := util.SplitUniqSort(body["members"].(string))
@@ -46,7 +48,7 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 	var msg pusher.Message
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
-		log.Println("body malformed: " + err.Error())
+		log.Printf("body malformed: body=%s err=%s", string(data), err.Error())
 		respondFail(res, http.StatusBadRequest, "body malformed: "+err.Error())
 		return
 	}
