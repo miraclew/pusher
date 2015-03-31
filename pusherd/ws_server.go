@@ -32,7 +32,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	userId, err := pusher.GetUserIdByToken(token)
 	if err != nil && strings.Contains(err.Error(), "use of closed network connection") {
-		panic("lost redis connection")
+		log.Fatalln("lost redis connection") // panic does not exit the process, use log.Fatal instead
 	}
 
 	if err != nil || userId <= 0 {
