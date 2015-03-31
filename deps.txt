@@ -6,3 +6,5 @@ go get
 
 "github.com/fzzy/radix"
 "github.com/anachronistic/apns"
+
+github.com/stretchr/testify
