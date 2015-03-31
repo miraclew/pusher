@@ -10,7 +10,7 @@ type Client struct {
 	token string
 }
 
-func main() {
+func _main() {
 	fmt.Println("start")
 	origin := "http://localhost/"
 	url := "ws://localhost:9010/ws"
