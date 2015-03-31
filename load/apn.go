@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/anachronistic/apns"
 	"log"
+	"time"
 )
 
 const (
@@ -25,8 +26,17 @@ func main() {
 	pn.DeviceToken = deviceToken
 	pn.AddPayload(payload)
 
+	t := time.Now()
 	client := apns.NewClient("gateway.sandbox.push.apple.com:2195", CERT_FILE, KEY_FILE)
+	log.Println(time.Now().Sub(t))
+	t = time.Now()
+
 	resp := client.Send(pn)
+	log.Println(time.Now().Sub(t))
+
+	t = time.Now()
+	resp = client.Send(pn)
+	log.Println(time.Now().Sub(t))
 
 	if !resp.Success {
 		log.Println("apns err: ", resp.Error)
