@@ -110,6 +110,7 @@ func FindMessage(id string) (*Message, error) {
 }
 
 func CreateMessage(m *Message) (*Message, error) {
+	m.CreatedAt = time.Now()
 	res, err := r.Db("mercury").Table("messages").Insert(m).RunWrite(rdb)
 	if err != nil {
 		return nil, err

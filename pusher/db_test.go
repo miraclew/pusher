@@ -54,6 +54,13 @@ func TestCreateMessage(t *testing.T) {
 	}
 
 	fmt.Printf("%#v\n", r)
+
+	m2, _ := FindMessage(m.Id)
+	if m2.CreatedAt != m.CreatedAt {
+		fmt.Println(m.CreatedAt)
+		fmt.Println(m2.CreatedAt)
+		t.Error("CreatedAt is not equal")
+	}
 }
 
 func TestGetUserIdByToke(t *testing.T) {

@@ -11,7 +11,7 @@ const (
 	KEY_FILE  = "/Users/aaaa/certificate/mercury/dev/key.unencrypted.pem"
 )
 
-func main() {
+func apn_push() {
 	deviceToken := "f23028556c3213fb48834b845cb5e62eb29a14e89a421824f6cfdc2bf95f3384"
 
 	payload := apns.NewPayload()
