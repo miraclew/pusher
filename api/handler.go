@@ -3,13 +3,11 @@ package api
 import (
 	"coding.net/miraclew/pusher/pusher"
 	"encoding/json"
-	// "fmt"
 	"github.com/miraclew/mrs/util"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"sort"
-	// "strconv"
 )
 
 func HandleChannel(res http.ResponseWriter, req *http.Request) {

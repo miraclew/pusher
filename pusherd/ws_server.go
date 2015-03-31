@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type ConnectionManager interface {
@@ -30,6 +31,10 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	token := req.URL.Query().Get("token")
 
 	userId, err := pusher.GetUserIdByToken(token)
+	if err != nil && strings.Contains(err.Error(), "use of closed network connection") {
+		panic("lost redis connection")
+	}
+
 	if err != nil || userId <= 0 {
 		log.Printf("Auth failed, protocol=%s token=%s, err: %s\n", conn.Subprotocol(), token, err.Error())
 		conn.Close()
