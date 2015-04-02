@@ -2,6 +2,7 @@ package pusher
 
 import (
 	"fmt"
+	"github.com/stretchr/testify"
 	"testing"
 )
 
