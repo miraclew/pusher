@@ -80,8 +80,11 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 		h.pushToQueue(userId, msg, true)
 		var length int
 		length, err = h.processQueue(userId)
-		if length > 0 || err != nil {
-			go h.pushToIosDevice(userId, msg, length)
+
+		if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
+			if length > 0 || err != nil {
+				go h.pushToIosDevice(userId, msg, length)
+			}
 		}
 	}
 
@@ -195,7 +198,7 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		resp := client.Send(pn)
 
 		if !resp.Success {
-			log.Printf("apns msgId:%s err: ", msg.Id, resp.Error)
+			log.Printf("apns msgId:%s err: %s", msg.Id, resp.Error)
 		} else {
 			log.Printf("apns msgId:%s success", msg.Id)
 		}
