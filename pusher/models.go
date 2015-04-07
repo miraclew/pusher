@@ -60,7 +60,7 @@ func GetChannelByMembers(members []string) (*Channel, error) {
 }
 
 func FindChannelByHash(hash string) (*Channel, error) {
-	query := r.Db("mercury").Table("channels").Filter(r.Row.Field("hash").Eq(hash)).Limit(1)
+	query := r.Table("channels").Filter(r.Row.Field("hash").Eq(hash)).Limit(1)
 	res, err := query.Run(rdb)
 
 	if err != nil || res.IsNil() {
@@ -81,7 +81,7 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	channel := &Channel{Hash: hash, Members: members,
 		Type: CHANNEL_TYPE_NORMAL, CreatedAt: time.Now()}
 
-	res, err := r.Db("mercury").Table("channels").Insert(channel).RunWrite(rdb)
+	res, err := r.Table("channels").Insert(channel).RunWrite(rdb)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 }
 
 func FindMessage(id string) (*Message, error) {
-	res, err := r.Db("mercury").Table("messages").Get(id).Run(rdb)
+	res, err := r.Table("messages").Get(id).Run(rdb)
 	if err != nil || res.IsNil() {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func FindMessage(id string) (*Message, error) {
 
 func CreateMessage(m *Message) (*Message, error) {
 	m.CreatedAt = time.Now()
-	res, err := r.Db("mercury").Table("messages").Insert(m).RunWrite(rdb)
+	res, err := r.Table("messages").Insert(m).RunWrite(rdb)
 	if err != nil {
 		return nil, err
 	}

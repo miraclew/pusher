@@ -2,7 +2,7 @@ package pusher
 
 import (
 	"fmt"
-	"github.com/stretchr/testify"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -33,6 +33,8 @@ func TestGetChannel(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
+
+	assert.NoError(t, err, "...")
 
 	fmt.Printf("%#v\n", c)
 }

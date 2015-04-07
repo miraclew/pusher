@@ -42,7 +42,7 @@ func main() {
 	// //return m, nil
 	// log.Println(m)
 
-	res2, err2 := r.Db("mercury").Table("messages").Get("161c9713-6795-4193-aba6-e271e63a5843").Run(rdb)
+	res2, err2 := r.Table("messages").Get("161c9713-6795-4193-aba6-e271e63a5843").Run(rdb)
 	if err2 != nil || res2.IsNil() {
 		log.Fatalln(err2)
 	}
