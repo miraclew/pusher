@@ -41,7 +41,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
+	//conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
 	log.Printf("New connection, protocol=%s token=%s userId=%d\n", conn.Subprotocol(), token, userId)
 
 	pusher.GetHub().RemoveConnection(userId)
