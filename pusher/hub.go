@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	TYPE_PRIVATE = 1
-	TYPE_GROUP   = 2
+	TYPE_DIRECT  = 1
+	TYPE_CHANNEL = 2
 	TYPE_BULK    = 3
 )
 
@@ -47,7 +47,10 @@ func (h *Hub) PushMsg(msg *Message) {
 		return
 	}
 
-	if msg.Type == TYPE_PRIVATE || msg.Type == TYPE_GROUP {
+	if msg.Type == TYPE_DIRECT {
+		receiverId, err := strconv.ParseInt(msg.ChannelId, 10, 64)
+		h.toUsers(msg, []int64{receiverId})
+	} else if msg.Type == msg.Type == TYPE_CHANNEL {
 		h.toChannel(msg, msg.ChannelId)
 	} else {
 		//receivers := []string(msg.Options["receivers"])

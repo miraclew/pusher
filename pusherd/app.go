@@ -51,7 +51,7 @@ func (a *App) Main() {
 	p.Get("/about", api.HandleAbout)
 	p.Post("/channel_msg", api.HandleChannelMsg)
 	p.Post("/channel", api.HandleChannel)
-	p.Post("/private_msg", api.HandlePrivateMsg)
+	p.Post("/direct_msg", api.HandleDirectMsg)
 
 	p.Get("/ws", WSHandler)
 	p.Get("/", WSHandler)

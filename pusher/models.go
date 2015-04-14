@@ -53,6 +53,7 @@ func GetChannelByMembers(members []string) (*Channel, error) {
 	}
 
 	if channel == nil {
+		log.Printf("channel for members: %#v not exist, create a new", members)
 		channel, err = CreateChannel(hash, members)
 	}
 
