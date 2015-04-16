@@ -200,13 +200,16 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		pn.AddPayload(payload)
 
 		envDir := "prod"
+		gatewayUrl = "gateway.push.apple.com:2195"
+
 		if apnsDev {
 			envDir = "dev"
+			gatewayUrl = "gateway.sandbox.push.apple.com:2195"
 		}
 		certificateFile := "cert/" + envDir + "/cert.pem"
 		keyFile := "cert/" + envDir + "/key.unencrypted.pem"
 
-		client := apns.NewClient("gateway.sandbox.push.apple.com:2195", certificateFile, keyFile)
+		client := apns.NewClient(gatewayUrl, certificateFile, keyFile)
 		resp := client.Send(pn)
 
 		if !resp.Success {
