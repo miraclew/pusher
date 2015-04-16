@@ -16,7 +16,7 @@ type M struct {
 	CreatedAt time.Time
 }
 
-func main() {
+func ttt() {
 	var err error
 	rdb, err = r.Connect(r.ConnectOpts{
 		Address:  "192.168.33.10:28015",

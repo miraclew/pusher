@@ -44,3 +44,7 @@ func apn_push() {
 		log.Println("apns success")
 	}
 }
+
+func main() {
+	apn_push()
+}
