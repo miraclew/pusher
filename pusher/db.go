@@ -15,11 +15,12 @@ const (
 
 var rdb *r.Session
 var redis *rds.Client
+var apnsDev bool
 
 func init() {
 }
 
-func Start(rethinkAddress string, rethinkDb string, redisAddress string) {
+func Start(rethinkAddress string, rethinkDb string, redisAddress string, devMode bool) {
 	var err error
 	rdb, err = r.Connect(r.ConnectOpts{
 		Address:  rethinkAddress,
@@ -37,6 +38,8 @@ func Start(rethinkAddress string, rethinkDb string, redisAddress string) {
 		log.Fatalln(err.Error())
 	}
 	log.Printf("redis connected: %s", redisAddress)
+
+	apnsDev = devMode
 }
 
 func Stop() {

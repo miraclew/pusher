@@ -25,6 +25,7 @@ type AppOptions struct {
 	rethinkDb   string
 	redisAddr   string
 	httpAddr    string
+	apnsDev     bool
 }
 
 func NewApp(options *AppOptions) *App {
@@ -44,7 +45,7 @@ func NewAppOptions() *AppOptions {
 }
 
 func (a *App) Main() {
-	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr)
+	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr, a.options.apnsDev)
 
 	p := pat.New()
 

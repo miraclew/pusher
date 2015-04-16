@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	Start("192.168.33.10:28015", "mercury", "192.168.33.10:6379")
+	Start("192.168.33.10:28015", "mercury", "192.168.33.10:6379", true)
 }
 
 // func TestFindChannelByHash(t *testing.T) {

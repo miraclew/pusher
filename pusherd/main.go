@@ -16,6 +16,7 @@ var (
 	rethinkAddr = flag.String("rethinkAddr", "127.0.0.1:28015", "<addr>:<port> (127.0.0.1:28015) rethink address to connect")
 	rethinkDb   = flag.String("rethinkDb", "", "rethink db name")
 	redisAddr   = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	apnsDev     = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
 )
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 		rethinkDb:   *rethinkDb,
 		redisAddr:   *redisAddr,
 		httpAddr:    *httpAddr,
+		apnsDev:     *apnsDev,
 	}
 	app := NewApp(options)
 

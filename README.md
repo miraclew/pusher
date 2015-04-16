@@ -27,10 +27,24 @@ Instant messaging service like Weixin/QQ
 # Cross build
 Build for linux on mac
 
-GOOS=linux GOARCH=amd64 go build  
-GOOS=linux GOARCH=amd64 go install  
+GOOS=linux GOARCH=amd64 go build
+GOOS=linux GOARCH=amd64 go install
 $GOPATH/bin/linux_amd64
 
 # Testing
 
 amazing testing with: Goconvey
+
+# Apns Push
+
+cert files should be place at the working directory of pusherd with structure:
+
+cert
+    - prod
+        - cert.pem
+        - key.unencrypted.pem
+    - dev
+        - cert.pem
+        - key.unencrypted.pem
+
+
