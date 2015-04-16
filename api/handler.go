@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sort"
 )
 
 func HandleChannel(res http.ResponseWriter, req *http.Request) {

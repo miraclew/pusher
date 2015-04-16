@@ -49,8 +49,12 @@ func (h *Hub) PushMsg(msg *Message) {
 
 	if msg.Type == TYPE_DIRECT {
 		receiverId, err := strconv.ParseInt(msg.ChannelId, 10, 64)
-		h.toUsers(msg, []int64{receiverId})
-	} else if msg.Type == msg.Type == TYPE_CHANNEL {
+		if err != nil {
+			log.Printf("channelId is not valid: %s", err.Error())
+		} else {
+			h.toUsers(msg, []int64{receiverId})
+		}
+	} else if msg.Type == TYPE_CHANNEL {
 		h.toChannel(msg, msg.ChannelId)
 	} else {
 		//receivers := []string(msg.Options["receivers"])
