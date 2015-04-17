@@ -107,7 +107,27 @@ func FindMessage(id string) (*Message, error) {
 
 	message := &Message{}
 	res.One(message)
+
+	// hacking the sent_at, otherwise it will be as float64 and json encode as sth. like 1.429238904e+09
+	payload := message.Payload.(map[string]interface{})
+	payload["sent_at"] = int64(payload["sent_at"].(float64))
+	message.Payload = payload
 	return message, err
+}
+
+func GetMessagesByChannel(channelId string) ([]*Message, error) {
+	query := r.Table("messages").Filter(r.Row.Field("channel_id").Eq(channelId))
+	res, err := query.Run(rdb)
+	//	log.Printf("res=%#v, err=%s", res, err)
+
+	if err != nil || res.IsNil() {
+		return nil, err
+	}
+
+	messages := []*Message{}
+	res.All(&messages)
+
+	return messages, nil
 }
 
 func CreateMessage(m *Message) (*Message, error) {
