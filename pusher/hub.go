@@ -87,7 +87,7 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 		h.pushToQueue(userId, msg, true)
 		var length int
 		length, err = h.processQueue(userId)
-		log.Println("ret length=%d, err=%s", length, err)
+		log.Printf("ret length=%d, err=%s", length, err)
 
 		if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
 			if length > 0 || err != nil {
