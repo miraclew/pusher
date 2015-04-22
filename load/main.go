@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	numOfClients  = flag.Int("n", 100, "Number of clients to start")
+	numOfClients  = flag.Int("n", 1, "Number of clients to start")
 	numOfMessages = flag.Int("m", 5, "Number of messages to send per second")
 	redisAddr     = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 	serverAddr    = flag.String("serverAddr", "localhost:9001", "API address")
