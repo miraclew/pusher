@@ -81,18 +81,18 @@ func _TestCreateMessage(t *testing.T) {
 }
 
 func _TestGetUserIdByToke(t *testing.T) {
-	token := "test"
-	redis.Cmd("hmset", token, "user_id", 123)
+	// token := "test"
+	// redis.Cmd("hmset", token, "user_id", 123)
 
-	userId, err := GetUserIdByToken(token)
-	if err != nil {
-		fmt.Println(err)
-		t.Fail()
-	}
-	if userId != 123 {
-		fmt.Println(userId)
-		t.Fail()
-	}
+	// userId, err := GetUserIdByToken(token)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	t.Fail()
+	// }
+	// if userId != 123 {
+	// 	fmt.Println(userId)
+	// 	t.Fail()
+	// }
 }
 
 func _TestJSON(t *testing.T) {

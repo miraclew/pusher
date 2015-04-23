@@ -67,8 +67,13 @@ func (l *Loader) loadClients() error {
 			return res.Err
 		}
 
-		client.Start()
 		l.clients = append(l.clients, client)
+	}
+
+	for i := 0; i < len(l.clients); i++ {
+		client := l.clients[i]
+		time.Sleep(100 * time.Millisecond)
+		client.Start()
 	}
 
 	log.Println("Create new clients: ", len(l.clients))

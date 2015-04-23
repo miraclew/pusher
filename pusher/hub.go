@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/anachronistic/apns"
+	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
@@ -119,41 +120,30 @@ func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, er
 		cmd = "lpush"
 	}
 
-	res := redis.Cmd(cmd, fmt.Sprintf("mq:%d", userId), msg.Id)
-	if res.Err != nil {
-		log.Println(res.Err)
-		return -1, res.Err
-	}
-
-	return res.Int()
+	return redis.Int(pool.Get().Do(cmd, fmt.Sprintf("mq:%d", userId), msg.Id))
 }
 
 func (h *Hub) processQueue(userId int64) (length int, err error) {
 	log.Println("processQueue: ", userId)
-	res := redis.Cmd("llen", fmt.Sprintf("mq:%d", userId))
-	if res.Err != nil {
-		log.Println(res.Err)
-		return -1, res.Err
+
+	length, err = redis.Int(pool.Get().Do("llen", fmt.Sprintf("mq:%d", userId)))
+
+	if err != nil {
+		return length, err
 	}
-	length, _ = res.Int()
 
 	if length <= 0 {
 		return 0, nil
 	}
 
-	res = redis.Cmd("rpop", fmt.Sprintf("mq:%d", userId))
-	if res.Err != nil {
-		log.Println(res.Err)
-		return length, res.Err
-	}
-
-	length -= 1
 	var msgId string
-	msgId, err = res.Str()
+	msgId, err = redis.String(pool.Get().Do("rpop", fmt.Sprintf("mq:%d", userId)))
 	if err != nil {
+		log.Println(err)
 		return length, err
 	}
 
+	length -= 1
 	var msg *Message
 	msg, err = FindMessage(msgId)
 
@@ -180,13 +170,13 @@ func (h *Hub) processQueue(userId int64) (length int, err error) {
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
-	res := redis.Cmd("get", fmt.Sprintf("apn_u2t:%d", userId))
-	if res.Err != nil {
-		log.Println("pushToIosDevice error: ", res.Err)
-		return res.Err
+	deviceToken, err := redis.String(pool.Get().Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
+	if err != nil {
+		log.Println("pushToIosDevice error: ", err)
+		return err
 	}
 
-	if deviceToken, _ := res.Str(); deviceToken != "" {
+	if deviceToken != "" {
 		log.Printf("apns msgId:%s userId:%d len:%d deviceToken=%s", msg.Id, userId, length, deviceToken)
 		payload := apns.NewPayload()
 		payload.Alert = "你有一条新的消息"
@@ -228,13 +218,11 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 func (h *Hub) toChannel(msg *Message, channelId string) error {
 	log.Println("push to channel_id:", channelId)
 
-	res := redis.Cmd("smembers", fmt.Sprintf("cm:%s", channelId))
-	if res.Err != nil {
-		log.Println(res.Err)
-		return res.Err
+	ls, err := redis.Strings(pool.Get().Do("smembers", fmt.Sprintf("cm:%s", channelId)))
+	if err != nil {
+		log.Println(err)
+		return err
 	}
-
-	ls, _ := res.List()
 
 	var users []int64
 	for _, v := range ls {

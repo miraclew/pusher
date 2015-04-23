@@ -84,7 +84,7 @@ func HandleDirectMsg(res http.ResponseWriter, req *http.Request) {
 		respondFail(res, http.StatusBadRequest, "body malformed: "+err.Error())
 		return
 	}
-	log.Printf("HandleDirectMsg(%#v)", msg)
+	//log.Printf("HandleDirectMsg(%#v)", msg)
 
 	if len(msg.ChannelId) <= 0 {
 		respondFail(res, http.StatusBadRequest, "channel_id is required")

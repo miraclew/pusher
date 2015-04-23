@@ -7,7 +7,6 @@ import (
 	r "github.com/dancannon/gorethink"
 	"io"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -90,9 +89,9 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	channel.Id = res.GeneratedKeys[0]
 
 	key := "cm:" + channel.Id
-	res2 := redis.Cmd("sadd", key, members)
-	if res2.Err != nil {
-		log.Printf("sadd(%s) err: %s", key, res2.Err)
+	_, err = pool.Get().Do("sadd", key, members)
+	if err != nil {
+		log.Printf("sadd(%s) err: %s", key, err)
 	}
 
 	log.Println("redis sadd", key, members)
@@ -145,19 +144,4 @@ func CreateMessage(m *Message) (*Message, error) {
 
 	m.Id = res.GeneratedKeys[0]
 	return m, nil
-}
-
-func GetUserIdByToken(token string) (int64, error) {
-	res := redis.Cmd("hgetall", "token:"+token)
-
-	if res.Err != nil {
-		return 0, res.Err
-	}
-
-	h, err := res.Hash()
-	if err != nil {
-		return 0, err
-	}
-
-	return strconv.ParseInt(h["user_id"], 10, 64)
 }
