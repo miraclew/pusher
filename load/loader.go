@@ -32,6 +32,7 @@ func (l *Loader) Start() {
 }
 
 func (l *Loader) Stop() {
+	log.Printf("Stoping loader...")
 	for i := 0; i < len(l.clients); i++ {
 		client := l.clients[i]
 		client.Stop()
@@ -60,7 +61,7 @@ func (l *Loader) loadClients() error {
 
 		log.Printf("NewClient: %d", userId)
 		// setup tokens
-		res := redis.Cmd("set", fmt.Sprintf("token:%d", userId), userId)
+		res := redis.Cmd("hmset", fmt.Sprintf("token:%d", userId), "user_id", userId)
 		if res.Err != nil {
 			log.Println("set token error: ", res.Err)
 			return res.Err

@@ -28,6 +28,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Println(req.URL.String())
 	token := req.URL.Query().Get("token")
 
 	userId, err := pusher.GetUserIdByToken(token)
