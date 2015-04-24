@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	r "github.com/dancannon/gorethink"
+	"github.com/garyburd/redigo/redis"
 	"io"
 	"log"
 	"strings"
@@ -92,7 +93,7 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	defer conn.Close()
 
 	key := "cm:" + channel.Id
-	_, err = conn.Do("sadd", key, members)
+	_, err = conn.Do("sadd", redis.Args{}.Add(key).AddFlat(members)...)
 	if err != nil {
 		log.Printf("sadd(%s) err: %s", key, err)
 	}
