@@ -54,7 +54,7 @@ func (c *Client) writeLoop() {
 
 	for {
 		timer := time.After(2 * time.Second)
-		log.Println(c.UserId, "writeLoop")
+		// log.Println(c.UserId, "writeLoop")
 		select {
 		case <-c.wQuit:
 			log.Println(c.UserId, "writeLoop End")
@@ -70,7 +70,7 @@ func (c *Client) readLoop() {
 	defer c.Stop()
 
 	for {
-		log.Println(c.UserId, "readLoop")
+		// log.Println(c.UserId, "readLoop")
 
 		var v interface{}
 		err := c.Conn.ReadJSON(&v)
@@ -80,7 +80,7 @@ func (c *Client) readLoop() {
 		}
 
 		c.recvNum++
-		log.Printf("%d recv:%#v", c.UserId, v)
+		// log.Printf("%d recv:%#v", c.UserId, v)
 	}
 }
 
@@ -117,7 +117,7 @@ func (c *Client) sendMessage() {
 		"opts":{"ttl":0,"offlineEnable":true,"apnEnable":false,"alert":"\u4e00\u6761\u65b0\u6d88\u606f","apn_alert":"\u4f60\u6536\u5230\u4e00\u6761\u6d88\u606f"}
 	}`
 	var msg = fmt.Sprintf(tpl, c.UserId, recieverId)
-	log.Println(msg)
+	// log.Println(msg)
 
 	body := ioutil.NopCloser(strings.NewReader(msg))
 	urlString := fmt.Sprintf("http://%s/direct_msg", c.Loader.serverAddr)

@@ -42,7 +42,7 @@ func (h *Hub) RemoveConnection(userId int64) {
 }
 
 func (h *Hub) PushMsg(msg *Message) {
-	log.Printf("pushMsg: %#v\n", msg)
+	//log.Printf("pushMsg: %#v\n", msg)
 	if msg.ChannelId == "0" {
 		h.broadcast(msg, true)
 		return
@@ -88,7 +88,10 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 		h.pushToQueue(userId, msg, true)
 		var length int
 		length, err = h.processQueue(userId)
-		log.Printf("ret length=%d, err=%#v", length, err)
+		log.Printf("ret length=%d", length)
+		if err != nil {
+			log.Printf("processQueue error=%s", err.Error())
+		}
 
 		if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
 			if length > 0 || err != nil {
@@ -120,13 +123,17 @@ func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, er
 		cmd = "lpush"
 	}
 
-	return redis.Int(pool.Get().Do(cmd, fmt.Sprintf("mq:%d", userId), msg.Id))
+	conn := pool.Get()
+	defer conn.Close()
+	return redis.Int(conn.Do(cmd, fmt.Sprintf("mq:%d", userId), msg.Id))
 }
 
 func (h *Hub) processQueue(userId int64) (length int, err error) {
 	log.Println("processQueue: ", userId)
 
-	length, err = redis.Int(pool.Get().Do("llen", fmt.Sprintf("mq:%d", userId)))
+	conn := pool.Get()
+	defer conn.Close()
+	length, err = redis.Int(conn.Do("llen", fmt.Sprintf("mq:%d", userId)))
 
 	if err != nil {
 		return length, err
@@ -137,7 +144,7 @@ func (h *Hub) processQueue(userId int64) (length int, err error) {
 	}
 
 	var msgId string
-	msgId, err = redis.String(pool.Get().Do("rpop", fmt.Sprintf("mq:%d", userId)))
+	msgId, err = redis.String(conn.Do("rpop", fmt.Sprintf("mq:%d", userId)))
 	if err != nil {
 		log.Println(err)
 		return length, err
@@ -170,7 +177,10 @@ func (h *Hub) processQueue(userId int64) (length int, err error) {
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
-	deviceToken, err := redis.String(pool.Get().Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
+	conn := pool.Get()
+	defer conn.Close()
+
+	deviceToken, err := redis.String(conn.Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
 	if err != nil {
 		log.Println("pushToIosDevice error: ", err)
 		return err
@@ -218,7 +228,10 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 func (h *Hub) toChannel(msg *Message, channelId string) error {
 	log.Println("push to channel_id:", channelId)
 
-	ls, err := redis.Strings(pool.Get().Do("smembers", fmt.Sprintf("cm:%s", channelId)))
+	conn := pool.Get()
+	defer conn.Close()
+
+	ls, err := redis.Strings(conn.Do("smembers", fmt.Sprintf("cm:%s", channelId)))
 	if err != nil {
 		log.Println(err)
 		return err

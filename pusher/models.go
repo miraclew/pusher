@@ -88,8 +88,11 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 
 	channel.Id = res.GeneratedKeys[0]
 
+	conn := pool.Get()
+	defer conn.Close()
+
 	key := "cm:" + channel.Id
-	_, err = pool.Get().Do("sadd", key, members)
+	_, err = conn.Do("sadd", key, members)
 	if err != nil {
 		log.Printf("sadd(%s) err: %s", key, err)
 	}

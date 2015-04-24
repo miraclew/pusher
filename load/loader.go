@@ -72,7 +72,7 @@ func (l *Loader) loadClients() error {
 
 	for i := 0; i < len(l.clients); i++ {
 		client := l.clients[i]
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 		client.Start()
 	}
 

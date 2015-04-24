@@ -31,7 +31,10 @@ func newRedisPool(server, password string) *redis.Pool {
 }
 
 func GetUserIdByToken(token string) (int64, error) {
-	v, err := redis.StringMap(pool.Get().Do("hgetall", "token:"+token))
+	conn := pool.Get()
+	defer conn.Close()
+
+	v, err := redis.StringMap(conn.Do("hgetall", "token:"+token))
 
 	if err != nil {
 		return 0, err
