@@ -28,8 +28,6 @@ func Start(rethinkAddress string, rethinkDb string, redisAddr string, devMode bo
 	rdb, err = r.Connect(r.ConnectOpts{
 		Address:  rethinkAddress,
 		Database: rethinkDb,
-		MaxIdle:  20,
-		MaxOpen:  100,
 	})
 
 	if err != nil {
