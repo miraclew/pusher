@@ -7,11 +7,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 var (
 	nbApiRequests int
+	startAt       time.Time
 )
+
+func init() {
+	startAt = time.Now()
+}
 
 func HandleChannel(res http.ResponseWriter, req *http.Request) {
 	nbApiRequests++
@@ -127,7 +133,8 @@ func HandleInfo(res http.ResponseWriter, req *http.Request) {
 	nbApiRequests++
 
 	respondOK(res, map[string]interface{}{
-		"message":      "info",
+		"start_at":     startAt,
+		"uptime":       time.Now().Sub(startAt).Seconds(),
 		"api_requests": nbApiRequests,
 		"clients":      pusher.GetHub().ConnectionsCount(),
 	})
