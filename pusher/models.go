@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	r "github.com/dancannon/gorethink"
 	"github.com/garyburd/redigo/redis"
 	"io"
@@ -148,4 +149,41 @@ func CreateMessage(m *Message) (*Message, error) {
 
 	m.Id = res.GeneratedKeys[0]
 	return m, nil
+}
+
+func GetUserQueuedMessageIds(userId string) ([]string, error) {
+	conn := pool.Get()
+	defer conn.Close()
+
+	ls, err := redis.Strings(conn.Do("lrange", fmt.Sprintf("mq:%s", userId), 0, -1))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var ids []string
+	for _, v := range ls {
+		ids = append(ids, v)
+	}
+
+	return ids, nil
+}
+
+func GetUserQueuedMessages(userId string) ([]string, []*Message, error) {
+	ids, err := GetUserQueuedMessageIds(userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	messages := []*Message{}
+
+	for i := 0; i < len(ids); i++ {
+		message, _ := FindMessage(ids[i])
+		// if err2 != nil {
+		// 	continue
+		// }
+		messages = append(messages, message)
+	}
+
+	return ids, messages, nil
 }

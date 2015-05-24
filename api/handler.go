@@ -130,12 +130,31 @@ func HandleAbout(res http.ResponseWriter, req *http.Request) {
 }
 
 func HandleInfo(res http.ResponseWriter, req *http.Request) {
-	nbApiRequests++
 
 	respondOK(res, map[string]interface{}{
 		"start_at":     startAt,
 		"uptime":       time.Now().Sub(startAt).Seconds(),
 		"api_requests": nbApiRequests,
 		"clients":      pusher.GetHub().ConnectionsCount(),
+	})
+}
+
+func HandleMq(res http.ResponseWriter, req *http.Request) {
+	userId := req.URL.Query().Get("user_id")
+	if len(userId) <= 0 {
+		respondFail(res, http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	ids, messages, err := pusher.GetUserQueuedMessages(userId)
+	if err != nil {
+		respondOK(res, map[string]interface{}{
+			"err": err.Error(),
+		})
+	}
+	respondOK(res, map[string]interface{}{
+		"count":    len(ids),
+		"ids":      ids,
+		"messages": messages,
 	})
 }
