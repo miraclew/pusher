@@ -41,6 +41,10 @@ func (h *Hub) RemoveConnection(userId int64) {
 	delete(h.connections, userId)
 }
 
+func (h *Hub) ConnectionsCount() int {
+	return len(h.connections)
+}
+
 func (h *Hub) PushMsg(msg *Message) {
 	//log.Printf("pushMsg: %#v\n", msg)
 	if msg.ChannelId == "0" {

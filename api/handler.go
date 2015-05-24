@@ -9,7 +9,12 @@ import (
 	"net/http"
 )
 
+var (
+	nbApiRequests int
+)
+
 func HandleChannel(res http.ResponseWriter, req *http.Request) {
+	nbApiRequests++
 	data, _ := ioutil.ReadAll(req.Body)
 	var body map[string]interface{}
 	err := json.Unmarshal(data, &body)
@@ -40,6 +45,7 @@ func HandleChannel(res http.ResponseWriter, req *http.Request) {
 }
 
 func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
+	nbApiRequests++
 	data, _ := ioutil.ReadAll(req.Body)
 
 	var msg pusher.Message
@@ -75,6 +81,7 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 }
 
 func HandleDirectMsg(res http.ResponseWriter, req *http.Request) {
+	nbApiRequests++
 	data, _ := ioutil.ReadAll(req.Body)
 
 	var msg pusher.Message
@@ -110,7 +117,18 @@ func HandleDirectMsg(res http.ResponseWriter, req *http.Request) {
 }
 
 func HandleAbout(res http.ResponseWriter, req *http.Request) {
+	nbApiRequests++
 	respondOK(res, map[string]interface{}{
 		"message": "welcome to push service",
+	})
+}
+
+func HandleInfo(res http.ResponseWriter, req *http.Request) {
+	nbApiRequests++
+
+	respondOK(res, map[string]interface{}{
+		"message":      "info",
+		"api_requests": nbApiRequests,
+		"clients":      pusher.GetHub().ConnectionsCount(),
 	})
 }

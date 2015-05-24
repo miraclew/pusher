@@ -50,6 +50,7 @@ func (a *App) Main() {
 	p := pat.New()
 
 	p.Get("/about", api.HandleAbout)
+	p.Get("/info", api.HandleInfo)
 	p.Post("/channel_msg", api.HandleChannelMsg)
 	p.Post("/channel", api.HandleChannel)
 	p.Post("/direct_msg", api.HandleDirectMsg)
