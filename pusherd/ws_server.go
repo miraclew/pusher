@@ -51,7 +51,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	// Reading loop, required
 	for {
 		if _, _, err := conn.NextReader(); err != nil {
-			log.Println("Disconnect ", userId)
+			log.Println("Disconnect ", userId, err.Error())
 			conn.Close()
 			pusher.GetHub().RemoveConnection(userId)
 			break
