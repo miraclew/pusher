@@ -37,8 +37,8 @@ type Message struct {
 }
 
 type ClientMessage struct {
-	Type     int
-	AckMsgId string
+	Type     int    `json:"type"`
+	AckMsgId string `json:"ack_msg_id"`
 }
 
 func NewMessage(channelId string, typ int, payload interface{}, senderId string, opts map[string]interface{}) *Message {
