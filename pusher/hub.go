@@ -126,7 +126,7 @@ func (h *Hub) processQueue(userId int64) (err error) {
 
 	conn := pool.Get()
 	defer conn.Close()
-	ids, err2 := redis.Strings(conn.Do("lrang", fmt.Sprintf("mq:%d", userId), 0, 9))
+	ids, err2 := redis.Strings(conn.Do("lrange", fmt.Sprintf("mq:%d", userId), 0, 9))
 
 	if err2 != nil {
 		return err2
