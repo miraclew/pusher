@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
+	"time"
 )
 
 const (
@@ -111,9 +112,14 @@ func (h *Hub) sendToUser(userId int64, msg *Message) (ok bool, err error) {
 	log.Println("Send to user ", userId, msg.Id)
 	conn, ok := h.connections[userId]
 	if ok {
+		err = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+		if err != nil {
+			log.Printf("Error: %d SetWriteDeadline error: %s \n", userId, err.Error())
+		}
+
 		err = conn.WriteJSON(msg.Payload)
 		if err != nil {
-			log.Printf("Error: %ld WriteJSON error: %s \n", userId, err.Error())
+			log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
 			h.pushToQueue(userId, msg, false)
 			h.RemoveConnection(userId)
 			return false, err
