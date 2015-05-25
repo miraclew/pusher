@@ -1,14 +1,12 @@
 package pusher
 
 import (
-	"errors"
 	"fmt"
 	"github.com/anachronistic/apns"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
-	"time"
 )
 
 const (
@@ -91,45 +89,20 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 
 		// push to queue
 		h.pushToQueue(userId, msg, true)
-		var length int
-		length, err = h.processQueue(userId)
-		log.Printf("ret length=%d", length)
-		if err != nil {
-			log.Printf("processQueue error=%s", err.Error())
-		}
-
-		if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
-			if length > 0 || err != nil {
-				go h.pushToIosDevice(userId, msg, length)
+		_, ok := h.connections[userId]
+		if ok { // online
+			err = h.processQueue(userId)
+			if err != nil {
+				log.Printf("processQueue error=%s", err.Error())
+			}
+		} else { // offline
+			if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
+				go h.pushToIosDevice(userId, msg, 1) // TODO:
 			}
 		}
 	}
 
 	return nil
-}
-
-func (h *Hub) sendToUser(userId int64, msg *Message) (ok bool, err error) {
-	log.Println("Send to user ", userId, msg.Id)
-	conn, ok := h.connections[userId]
-	if ok {
-		err = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		if err != nil {
-			log.Printf("Error: %d SetWriteDeadline error: %s \n", userId, err.Error())
-		}
-
-		err = conn.WriteJSON(msg.Payload)
-		if err != nil {
-			log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
-			h.pushToQueue(userId, msg, false)
-			h.RemoveConnection(userId)
-			return false, err
-		}
-		return true, err
-	} else {
-		log.Println("user not online, pushToQueue ", userId)
-		h.pushToQueue(userId, msg, false)
-		return false, nil
-	}
 }
 
 func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, err error) {
@@ -143,52 +116,49 @@ func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, er
 	return redis.Int(conn.Do(cmd, fmt.Sprintf("mq:%d", userId), msg.Id))
 }
 
-func (h *Hub) processQueue(userId int64) (length int, err error) {
+func (h *Hub) processQueue(userId int64) (err error) {
 	log.Println("processQueue: ", userId)
+
+	ws, ok := h.connections[userId]
+	if !ok {
+		return nil
+	}
 
 	conn := pool.Get()
 	defer conn.Close()
-	length, err = redis.Int(conn.Do("llen", fmt.Sprintf("mq:%d", userId)))
+	ids, err2 := redis.Strings(conn.Do("lrang", fmt.Sprintf("mq:%d", userId), 0, 9))
 
-	if err != nil {
-		return length, err
+	if err2 != nil {
+		return err2
 	}
 
-	if length <= 0 {
-		return 0, nil
+	if len(ids) <= 0 {
+		return nil
 	}
 
-	var msgId string
-	msgId, err = redis.String(conn.Do("rpop", fmt.Sprintf("mq:%d", userId)))
-	if err != nil {
-		log.Println(err)
-		return length, err
+	for i := 0; i < len(ids); i++ {
+		msgId := ids[i]
+
+		var msg *Message
+		msg, err = FindMessage(msgId)
+
+		if err != nil {
+			log.Println(fmt.Sprintf("FindMessage: %s error: %s", msgId, err.Error()))
+			continue
+		}
+
+		if msg == nil {
+			log.Println(fmt.Sprintf("msgId: %s not found", msgId))
+			continue
+		}
+
+		err = ws.WriteJSON(msg.Payload)
+		if err != nil {
+			log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
+		}
 	}
 
-	length -= 1
-	var msg *Message
-	msg, err = FindMessage(msgId)
-
-	if err != nil {
-		return length, err
-	}
-
-	if msg == nil {
-		return length, errors.New(fmt.Sprintf("msgId: %s not found", msgId))
-	}
-
-	var ok bool
-	ok, err = h.sendToUser(userId, msg)
-	if !ok || err != nil {
-		return length + 1, err
-	}
-
-	if length > 0 {
-		log.Println("mq len: ", length)
-		return h.processQueue(userId)
-	}
-
-	return 0, nil
+	return nil
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
@@ -260,4 +230,8 @@ func (h *Hub) toChannel(msg *Message, channelId string) error {
 
 	log.Println("toUsers: ", users)
 	return h.toUsers(msg, users)
+}
+
+func (h *Hub) HandleAck(userId int64, msgId string) {
+
 }
