@@ -108,14 +108,19 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 }
 
 func (h *Hub) sendToUser(userId int64, msg *Message) (ok bool, err error) {
+	log.Println("Send to user ", userId, msg.Id)
 	conn, ok := h.connections[userId]
 	if ok {
 		err = conn.WriteJSON(msg.Payload)
 		if err != nil {
+			log.Printf("Error: %ld WriteJSON error: %s \n", userId, err.Error())
+			h.pushToQueue(userId, msg, false)
+			h.RemoveConnection(userId)
 			return false, err
 		}
 		return true, err
 	} else {
+		log.Println("user not online, pushToQueue ", userId)
 		h.pushToQueue(userId, msg, false)
 		return false, nil
 	}
