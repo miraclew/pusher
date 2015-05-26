@@ -88,7 +88,7 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 		}
 
 		// push to queue
-		h.pushToQueue(userId, msg, true)
+		h.pushToQueue(userId, msg)
 		_, ok := h.connections[userId]
 		if ok { // online
 			err = h.processQueue(userId)
@@ -105,11 +105,8 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 	return nil
 }
 
-func (h *Hub) pushToQueue(userId int64, msg *Message, left bool) (length int, err error) {
+func (h *Hub) pushToQueue(userId int64, msg *Message) (length int, err error) {
 	cmd := "rpush"
-	if left {
-		cmd = "lpush"
-	}
 
 	conn := pool.Get()
 	defer conn.Close()
@@ -152,7 +149,10 @@ func (h *Hub) processQueue(userId int64) (err error) {
 			continue
 		}
 
-		err = ws.WriteJSON(msg.Payload)
+		payload := msg.Payload.(map[string]interface{})
+		payload["id"] = msgId
+
+		err = ws.WriteJSON(payload)
 		if err != nil {
 			log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
 		}
