@@ -11,7 +11,7 @@
         ttl: int, // 消息有效时间
         sent_at: int, // 发送时间(push服务收到该消息时间)
         body: {
-            
+
         },
         extra: { // 额外数据
         }
@@ -39,7 +39,20 @@ Type & Subtype:
     ST_CE_CHAT_UPDATE = 2005 // Chat 信息更新
 
     TYPE_SYSTEM_EVENT = 3 // 系统事件
-    ST_SE_ROLL_MSG = 3001 //滚屏消息 
+    ST_SE_ROLL_MSG = 3001 //滚屏消息
+
+
+    TYPE_GENERAL_EVENT        = 4
+    ST_GE_NEW_LIKE            = 4001 //点赞
+    ST_GE_NEW_COMMENT         = 4002 //评论
+    ST_GE_NEW_POST            = 4003 //帖子
+    ST_GE_NEW_LETTER          = 4011 // 新情书
+    ST_GE_LETTER_ARRIVE       = 4012 // 情书送达
+    ST_GE_TREE_UPGRADE        = 4013 // 爱情树升级
+    ST_GE_USER_NB_UPDATE      = 4014 // 用户数值更新
+    ST_GE_NEW_FANS            = 4021 // 新粉丝
+    ST_GE_NEW_WATERING        = 4022 // 新浇水
+    ST_GE_REMIND_LOGIN        = 4023 // 提醒登陆
 
 
 ## Body 定义 ##
@@ -52,7 +65,7 @@ Type & Subtype:
     }
 
 不同类型的mime对应content定义:
- 
+
 text
 
     {
@@ -66,7 +79,7 @@ image
         url: string // 图片地址
     }
 
-   
+
 audio
 
     {
@@ -92,6 +105,79 @@ video
         times: int // 滚屏次数
     }
 
+
+### ST_GE_NEW_LIKE ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_NEW_POST ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_NEW_COMMENT ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_NEW_LETTER ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_LETTER_ARRIVE ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_TREE_UPGRADE ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_USER_NB_UPDATE ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_NEW_FANS ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+### ST_GE_NEW_WATERING ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+
+### ST_GE_REMIND_LOGIN ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
+
 ## Examples ##
 
 文字聊天消息
@@ -107,7 +193,7 @@ video
             content: {
                 text: "hello world!"
             }
-        }          
+        }
     }
 
 
@@ -126,7 +212,7 @@ video
             content: {
                 url: "http://mercury.uwang.me/avatar/1.jpg"
             }
-        }          
+        }
     }
 
 滚屏消息
@@ -142,7 +228,7 @@ video
         body: {
             text: "嘎嘎送礼10个钻石给呵呵",
             times: 3
-        }          
+        }
     }
 
 送钻石消息
@@ -157,7 +243,7 @@ video
         sent_at: 124555,
         body: {
             text: 3
-        }          
+        }
     }
 
 更新聊天状态消息
@@ -178,6 +264,6 @@ video
             last_send_at: "0000-00-00 00:00:00",
             status: 2,
             channel_id: null,
-        }          
+        }
     }
 
