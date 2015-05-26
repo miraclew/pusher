@@ -233,5 +233,13 @@ func (h *Hub) toChannel(msg *Message, channelId string) error {
 }
 
 func (h *Hub) HandleAck(userId int64, msgId string) {
+	log.Printf("HandleAck %d %s \n", userId, msgId)
 
+	conn := pool.Get()
+	defer conn.Close()
+
+	_, err := redis.Int(conn.Do("lrem", fmt.Sprintf("mq:%d", userId), 0, msgId))
+	if err != nil {
+		log.Printf("lrem error: %s \n", err.Error())
+	}
 }
