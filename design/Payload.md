@@ -151,8 +151,10 @@ video
 ### ST_GE_USER_NB_UPDATE ###
 
     {
-        text: string
-        times: int // 滚屏次数
+        followers: int,
+        new_followers: int,
+        visitors: int,
+        new_visitors: int,
     }
 
 ### ST_GE_NEW_FANS ###
