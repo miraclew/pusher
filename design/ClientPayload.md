@@ -4,8 +4,9 @@
         type: int,
         ack_msg_id: string
     }
-    
-    
-## Type
 
-ACK_MSG = 6001
+
+## Type Defines
+
+TYPE_ACK_MSG = 6001
+
