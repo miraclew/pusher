@@ -33,7 +33,7 @@ func NewClient(userId int, loader *Loader) *Client {
 }
 
 func (c *Client) Start() {
-	urlString := fmt.Sprintf("ws://%s/ws?token=%d", c.Loader.serverAddr, c.UserId)
+	urlString := fmt.Sprintf("ws://%s/ws?token=%d&v=2.0.5", c.Loader.serverAddr, c.UserId)
 
 	conn, _, err := websocket.DefaultDialer.Dial(urlString, nil)
 	if err != nil {

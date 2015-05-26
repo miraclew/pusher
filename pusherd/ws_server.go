@@ -30,6 +30,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	log.Println(req.URL.String())
 	token := req.URL.Query().Get("token")
+	version := req.URL.Query().Get("v")
 
 	userId, err := pusher.GetUserIdByToken(token)
 	if err != nil && strings.Contains(err.Error(), "use of closed network connection") {
@@ -44,7 +45,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
-	log.Printf("New connection, protocol=%s token=%s userId=%d\n", conn.Subprotocol(), token, userId)
+	log.Printf("New connection, v=%s protocol=%s token=%s userId=%d\n", version, conn.Subprotocol(), token, userId)
 
 	pusher.GetHub().RemoveConnection(userId)
 	pusher.GetHub().AddConnection(userId, conn)
