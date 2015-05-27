@@ -135,13 +135,13 @@ Apns 推送的消息格式 (iOS)
     {
         "aps" : {
               "alert” : {
-                "params": {
-                    "type": int,
-                    "sub_type": int,
-                    "rid": int,
-                    "sent_at": int
-                }
               }
+        },
+        "params": {
+            "type": int,
+            "sub_type": int,
+            "rid": int,
+            "sent_at": int
         }
     }
 
