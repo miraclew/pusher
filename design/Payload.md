@@ -186,9 +186,17 @@ video
 
 ### ST_GE_NOTIFICATION ###
 
+Apns 推送的消息
     {
-        text: string
-        times: int // 滚屏次数
+        "aps" : {
+              "alert” : {
+                "params": {
+                    "type": int,
+                    "rid": int,
+                    "sent_at": int
+                }
+              }
+        }
     }
 
 ## Examples ##
