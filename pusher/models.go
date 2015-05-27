@@ -16,6 +16,8 @@ import (
 const (
 	CHANNEL_TYPE_NORMAL = 1
 	MESSAGE_TYPE_NORMAL = 1
+
+	MSG_TYPE_ACK = 6001
 )
 
 type Channel struct {

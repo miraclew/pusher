@@ -46,6 +46,8 @@ Type & Subtype:
     ST_GE_NEW_LIKE            = 4001 //点赞
     ST_GE_NEW_COMMENT         = 4002 //评论
     ST_GE_NEW_POST            = 4003 //帖子
+
+    ST_GE_NOTIFY_NEW_LETTER
     ST_GE_NEW_LETTER          = 4011 // 新情书
     ST_GE_LETTER_ARRIVE       = 4012 // 情书送达
     ST_GE_TREE_UPGRADE        = 4013 // 爱情树升级

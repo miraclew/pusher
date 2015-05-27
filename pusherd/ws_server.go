@@ -2,6 +2,7 @@ package main
 
 import (
 	"coding.net/miraclew/pusher/pusher"
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"io"
 	"log"
@@ -51,15 +52,27 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	pusher.GetHub().AddConnection(userId, conn)
 	// Reading loop, required
 	for {
-		var msg = &pusher.ClientMessage{}
-		err = conn.ReadJSON(msg)
-		if err != nil {
-			log.Println("Disconnect ", userId, err.Error())
+		_, b, err2 := conn.ReadMessage()
+		if err2 != nil {
+			log.Println("Disconnect ", userId, err2.Error())
 			conn.Close()
 			pusher.GetHub().RemoveConnection(userId)
 			break
 		} else {
-			pusher.GetHub().HandleAck(userId, msg.AckMsgId)
+			data := string(b)
+			if data == "p" || data == "ping" {
+				continue
+			}
+
+			var msg = &pusher.ClientMessage{}
+			err = json.Unmarshal(b, msg)
+			if err != nil {
+				log.Printf("Malformed msg: %d %s %s", userId, data, err2.Error())
+			}
+
+			if msg.Type == pusher.MSG_TYPE_ACK {
+				pusher.GetHub().HandleAck(userId, msg.AckMsgId)
+			}
 		}
 	}
 }
