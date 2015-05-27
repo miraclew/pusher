@@ -184,6 +184,13 @@ video
     }
 
 
+### ST_GE_NOTIFICATION ###
+
+    {
+        text: string
+        times: int // 滚屏次数
+    }
+
 ## Examples ##
 
 文字聊天消息
