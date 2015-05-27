@@ -157,6 +157,8 @@ video
         new_followers: int,
         visitors: int,
         new_visitors: int,
+        new_letters: int,
+        new_water: int,
     }
 
 ### ST_GE_NEW_FANS ###
