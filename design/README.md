@@ -3,7 +3,8 @@
 ## Options
 
     ttl
-    offline_enable
+    offline_enable (push to queue if user offline)
+    ack (need ack)
     apn_enable
     alert
 
