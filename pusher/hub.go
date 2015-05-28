@@ -1,6 +1,7 @@
 package pusher
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/anachronistic/apns"
 	"github.com/garyburd/redigo/redis"
@@ -151,6 +152,11 @@ func (h *Hub) processQueue(userId int64) (err error) {
 
 		payload := msg.Payload.(map[string]interface{})
 		payload["id"] = msgId
+
+		bs, err3 := json.Marshal(payload)
+		if err3 != nil {
+			log.Printf("send %d: %s\n", userId, string(bs))
+		}
 
 		err = ws.WriteJSON(payload)
 		if err != nil {
