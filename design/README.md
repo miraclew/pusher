@@ -1,5 +1,11 @@
 #design
 
+## Options
+
+    ttl
+    offline_enable
+    apn_enable
+    alert
 
 ## User Message Queue Design
 
@@ -8,9 +14,10 @@ receiver <- [ 1, 2, 3, 4, 5 ] <- sender
 
 ## Send message
 
-1. Push to queue(rpush)
-2. Client offline, return (iOS push if need)
-3. Otherwise, trigger process queue
+1. Not offline_enable, send to online users, skip offline users
+2. Push to queue(rpush)
+3. Client offline, return (iOS push if need)
+4. Otherwise, trigger process queue
 
 ## Accept connection
 
