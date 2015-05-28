@@ -154,7 +154,7 @@ func (h *Hub) processQueue(userId int64) (err error) {
 		payload["id"] = msgId
 
 		bs, err3 := json.Marshal(payload)
-		if err3 != nil {
+		if err3 == nil {
 			log.Printf("send %d: %s\n", userId, string(bs))
 		}
 
