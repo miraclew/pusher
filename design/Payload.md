@@ -117,6 +117,7 @@ video
         new_visitors: int,
         new_letters: int,
         new_water: int,
+        tree_level: int,
     }
 
 ## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
@@ -137,7 +138,7 @@ Apns 推送的消息格式 (iOS)
               "alert” : {
               }
         },
-        "params": {
+        "notification": {
             "type": int,
             "sub_type": int,
             "rid": int,
