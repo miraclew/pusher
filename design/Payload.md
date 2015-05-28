@@ -46,16 +46,16 @@ Type & Subtype:
     ST_GE_NEW_LIKE            = 4001 //点赞
     ST_GE_NEW_COMMENT         = 4002 //评论
     ST_GE_NEW_POST            = 4003 //帖子
+    ST_GE_USER_NB_UPDATE      = 4100 // 用户数值更新
 
-    ST_GE_NOTIFY_NEW_LETTER
-    ST_GE_NEW_LETTER          = 4011 // 新情书
-    ST_GE_LETTER_ARRIVE       = 4012 // 情书送达
-    ST_GE_TREE_UPGRADE        = 4013 // 爱情树升级
-    ST_GE_USER_NB_UPDATE      = 4014 // 用户数值更新
-    ST_GE_NEW_FANS            = 4021 // 新粉丝
-    ST_GE_NEW_WATERING        = 4022 // 新浇水
-    ST_GE_REMIND_LOGIN        = 4023 // 提醒登陆
-
+    // 推送 (点击打开应用)
+    const TYPE_NOTIFICATION_EVENT   = 5;
+    const ST_NE_ALERT               = 5001; // 普通提醒，只需打开应用
+    const ST_NE_NEW_LETTER          = 5002; // 新情书
+    const ST_NE_LETTER_ARRIVE       = 5003; // 情书送达
+    const ST_NE_TREE_UPGRADE        = 5004; // 爱情树升级
+    const ST_NE_NEW_FANS            = 5005; // 新粉丝
+    const ST_NE_NEW_WATERING        = 5006; // 新浇水
 
 ## Body 定义 ##
 
@@ -108,48 +108,6 @@ video
     }
 
 
-### ST_GE_NEW_LIKE ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
-### ST_GE_NEW_POST ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
-### ST_GE_NEW_COMMENT ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
-### ST_GE_NEW_LETTER ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
-### ST_GE_LETTER_ARRIVE ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
-### ST_GE_TREE_UPGRADE ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
 ### ST_GE_USER_NB_UPDATE ###
 
     {
@@ -157,30 +115,36 @@ video
         new_followers: int,
         visitors: int,
         new_visitors: int,
+        new_letters: int,
+        new_water: int,
+        tree_level: int,
     }
 
-### ST_GE_NEW_FANS ###
+## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
+### ST_GE_NOTIFICATION ###
+
+body 格式 (Android)
 
     {
-        text: string
-        times: int // 滚屏次数
+        text: string, // 提示文字
+        rid: int, // 资源ID
     }
 
-### ST_GE_NEW_WATERING ###
+
+Apns 推送的消息格式 (iOS)
 
     {
-        text: string
-        times: int // 滚屏次数
+        "aps" : {
+              "alert” : {
+              }
+        },
+        "notification": {
+            "type": int,
+            "sub_type": int,
+            "rid": int,
+            "sent_at": int
+        }
     }
-
-
-### ST_GE_REMIND_LOGIN ###
-
-    {
-        text: string
-        times: int // 滚屏次数
-    }
-
 
 ## Examples ##
 
