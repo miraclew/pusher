@@ -88,17 +88,23 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 			continue
 		}
 
-		// push to queue
-		h.pushToQueue(userId, msg)
-		_, ok := h.connections[userId]
-		if ok { // online
-			err = h.processQueue(userId)
-			if err != nil {
-				log.Printf("processQueue error=%s", err.Error())
+		_, online := h.connections[userId]
+		if msg.Opts.OfflineEnable {
+			h.pushToQueue(userId, msg)
+
+			if online {
+				err = h.processQueue(userId)
+				if err != nil {
+					log.Printf("processQueue error=%s", err.Error())
+				}
+			} else {
+				if msg.Opts.ApnEnable {
+					go h.pushToIosDevice(userId, msg, 1) // TODO:
+				}
 			}
-		} else { // offline
-			if v, ok := msg.Opts["apn_enable"]; ok && v.(bool) {
-				go h.pushToIosDevice(userId, msg, 1) // TODO:
+		} else {
+			if online {
+				h.writeMessage(msg, userId)
 			}
 		}
 	}
@@ -117,7 +123,7 @@ func (h *Hub) pushToQueue(userId int64, msg *Message) (length int, err error) {
 func (h *Hub) processQueue(userId int64) (err error) {
 	log.Println("processQueue: ", userId)
 
-	ws, ok := h.connections[userId]
+	_, ok := h.connections[userId]
 	if !ok {
 		return nil
 	}
@@ -150,21 +156,40 @@ func (h *Hub) processQueue(userId int64) (err error) {
 			continue
 		}
 
-		payload := msg.Payload.(map[string]interface{})
-		payload["id"] = msgId
-
-		bs, err3 := json.Marshal(payload)
-		if err3 == nil {
-			log.Printf("send %d: %s\n", userId, string(bs))
-		}
-
-		err = ws.WriteJSON(payload)
-		if err != nil {
-			log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
+		err = h.writeMessage(msg, userId)
+		if err == nil && !msg.Opts.AckEnable {
+			_, err := redis.Int(conn.Do("lrem", fmt.Sprintf("mq:%d", userId), 0, msgId))
+			if err != nil {
+				log.Printf("lrem error: %s \n", err.Error())
+			}
 		}
 	}
 
 	return nil
+}
+
+func (h *Hub) writeMessage(msg *Message, userId int64) error {
+	ws, ok := h.connections[userId]
+	if !ok {
+		return nil
+	}
+
+	payload := msg.Payload.(map[string]interface{})
+	payload["id"] = msg.Id
+
+	bs, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("json.Marshal error: %s", err.Error())
+		return err
+	}
+	log.Printf("send %d: %s\n", userId, string(bs))
+
+	err = ws.WriteJSON(payload)
+	if err != nil {
+		log.Printf("Error: %d WriteJSON error: %s \n", userId, err.Error())
+	}
+
+	return err
 }
 
 func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
@@ -183,8 +208,8 @@ func (h *Hub) pushToIosDevice(userId int64, msg *Message, length int) error {
 		payload.Alert = "你有一条新的消息"
 		payload.Sound = "ping.aiff"
 		payload.Badge = length
-		if v, ok := msg.Opts["apn_alert"]; ok {
-			payload.Alert = v
+		if len(msg.Opts.Alert) > 0 {
+			payload.Alert = msg.Opts.Alert
 		}
 
 		pn := apns.NewPushNotification()

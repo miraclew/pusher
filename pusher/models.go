@@ -28,14 +28,22 @@ type Channel struct {
 	CreatedAt time.Time `gorethink:"created_at" json:"created_at"`
 }
 
+type MsgSendOpts struct {
+	TTL           int    `json:"ttl"`
+	Alert         string `json:"alert"`
+	OfflineEnable bool   `json:"offlineEnable"`
+	AckEnable     bool   `json:"ackEnable"`
+	ApnEnable     bool   `json:"apnEnable"`
+}
+
 type Message struct {
-	Id        string                 `gorethink:"id,omitempty" json:"id"`
-	ChannelId string                 `gorethink:"channel_id" json:"channel_id"`
-	Type      int                    `gorethink:"type" json:"type"`
-	Payload   interface{}            `gorethink:"payload" json:"payload"`
-	SenderId  string                 `gorethink:"sender_id" json:"sender_id"`
-	Opts      map[string]interface{} `gorethink:"opts" json:"opts"`
-	CreatedAt time.Time              `gorethink:"created_at" json:"created_at"`
+	Id        string       `gorethink:"id,omitempty" json:"id"`
+	ChannelId string       `gorethink:"channel_id" json:"channel_id"`
+	Type      int          `gorethink:"type" json:"type"`
+	Payload   interface{}  `gorethink:"payload" json:"payload"`
+	SenderId  string       `gorethink:"sender_id" json:"sender_id"`
+	Opts      *MsgSendOpts `gorethink:"opts" json:"opts"`
+	CreatedAt time.Time    `gorethink:"created_at" json:"created_at"`
 }
 
 type ClientMessage struct {
@@ -43,7 +51,7 @@ type ClientMessage struct {
 	AckMsgId string `json:"ack_msg_id"`
 }
 
-func NewMessage(channelId string, typ int, payload interface{}, senderId string, opts map[string]interface{}) *Message {
+func NewMessage(channelId string, typ int, payload interface{}, senderId string, opts *MsgSendOpts) *Message {
 	return &Message{
 		ChannelId: channelId, Type: typ, Payload: payload,
 		SenderId: senderId, Opts: opts, CreatedAt: time.Now(),

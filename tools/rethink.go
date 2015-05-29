@@ -50,5 +50,5 @@ func ttt() {
 	m2 := &pusher.Message{}
 	res2.One(m2)
 
-	log.Printf("%#v \n", m2.Opts["apn_nable"])
+	log.Printf("%#v \n", m2.Opts.ApnEnable)
 }

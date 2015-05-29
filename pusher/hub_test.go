@@ -11,7 +11,10 @@ func init() {
 
 func _TestApns(t *testing.T) {
 	hub := GetHub()
-	msg := NewMessage("aaa", 1, map[string]interface{}{"name": "hello"}, "1000", map[string]interface{}{"apns_alert": "hello apns"})
+	opts := &MsgSendOpts{}
+	opts.Alert = "hello apns"
+
+	msg := NewMessage("aaa", 1, map[string]interface{}{"name": "hello"}, "1000", opts)
 	err := hub.pushToIosDevice(10145, msg, 1)
 
 	if err != nil {
