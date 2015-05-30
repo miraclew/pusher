@@ -30,15 +30,26 @@ func newRedisPool(server, password string) *redis.Pool {
 	}
 }
 
-func GetUserIdByToken(token string) (int64, error) {
+func AuthClient(token string) (*Client, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
 	v, err := redis.StringMap(conn.Do("hgetall", "token:"+token))
 
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return strconv.ParseInt(v["user_id"], 10, 64)
+	userId, err2 := strconv.ParseInt(v["user_id"], 10, 64)
+	if err2 != nil {
+		return nil, err
+	}
+
+	client := &Client{}
+	client.Token = token
+	client.UserId = userId
+	client.Version = v["version"]
+	AddClient(client)
+
+	return client, nil
 }

@@ -157,10 +157,13 @@ func (h *Hub) processQueue(userId int64) (err error) {
 		}
 
 		err = h.writeMessage(msg, userId)
-		if err == nil && !msg.Opts.AckEnable {
-			_, err := redis.Int(conn.Do("lrem", fmt.Sprintf("mq:%d", userId), 0, msgId))
-			if err != nil {
-				log.Printf("lrem error: %s \n", err.Error())
+		if err == nil {
+			client := GetClient(userId)
+			if !msg.Opts.AckEnable || !client.SupportAck() {
+				_, err := redis.Int(conn.Do("lrem", fmt.Sprintf("mq:%d", userId), 0, msgId))
+				if err != nil {
+					log.Printf("lrem error: %s \n", err.Error())
+				}
 			}
 		}
 	}

@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type ConnectionManager interface {
@@ -33,18 +32,15 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	token := req.URL.Query().Get("token")
 	version := req.URL.Query().Get("v")
 
-	userId, err := pusher.GetUserIdByToken(token)
-	if err != nil && strings.Contains(err.Error(), "use of closed network connection") {
-		//log.Fatalln("lost redis connection") // panic does not exit the process, use log.Fatal instead
-		log.Println("Error: lost redis connection, reconnecting..")
-	}
+	client, err := pusher.AuthClient(token)
 
-	if err != nil || userId <= 0 {
+	if err != nil {
 		log.Printf("Auth failed, protocol=%s token=%s, err: %s\n", conn.Subprotocol(), token, err.Error())
 		conn.Close()
 		return
 	}
 
+	userId := client.UserId
 	//conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
 	log.Printf("New connection, v=%s protocol=%s token=%s userId=%d\n", version, conn.Subprotocol(), token, userId)
 
