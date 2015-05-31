@@ -60,8 +60,8 @@ func (a *App) startWS() {
 	n.UseHandler(p)
 
 	go func() {
-		log.Println("Http ws listen ", a.options.httpAddr)
-		err := http.ListenAndServe(a.options.httpAddr, n)
+		log.Println("Http ws listen ", a.options.wsAddr)
+		err := http.ListenAndServe(a.options.wsAddr, n)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -80,17 +80,9 @@ func (a *App) startApi() {
 	n := negroni.Classic()
 	n.UseHandler(p)
 
-	addr, err := net.ResolveTCPAddr("tcp", a.options.httpAddr)
-	if err != nil {
-		log.Fatal("httpAddr ResolveTCPAddr error: %s", err.Error())
-		return
-	}
-	addr.Port += 1
-	addr.IP = net.ParseIP("127.0.0.1")
-
 	go func() {
-		log.Println("Http api listen ", addr.String())
-		err := http.ListenAndServe(addr.String(), n)
+		log.Println("Http api listen ", a.options.apiAddr)
+		err := http.ListenAndServe(a.options.apiAddr, n)
 		if err != nil {
 			log.Fatalln(err)
 		}

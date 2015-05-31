@@ -32,7 +32,7 @@ func main() {
 		return
 	}
 
-	log.Println(util.Version("pusherd"))
+	log.Println(Version("pusherd"))
 
 	exitChan := make(chan int)
 	signalChan := make(chan os.Signal, 1)
@@ -47,6 +47,7 @@ func main() {
 		rethinkDb:   *rethinkDb,
 		redisAddr:   *redisAddr,
 		wsAddr:      *wsAddr,
+		apiAddr:     *apiAddr,
 		apnsDev:     *apnsDev,
 	}
 	app := NewApp(options)
