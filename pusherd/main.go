@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/miraclew/mrs/util"
 	"log"
 	"os"
 	"os/signal"
@@ -12,7 +11,8 @@ import (
 
 var (
 	showVersion = flag.Bool("version", false, "print version string")
-	httpAddr    = flag.String("httpAddr", "0.0.0.0:9010", "<addr>:<port> to listen on for HTTP clients")
+	wsAddr      = flag.String("wsAddr", "0.0.0.0:9010", "<addr>:<port> to listen on for WebSocket clients")
+	apiAddr     = flag.String("apiAddr", "127.0.0.1:9011", "<addr>:<port> to listen on for Http Api clients")
 	rethinkAddr = flag.String("rethinkAddr", "127.0.0.1:28015", "<addr>:<port> (127.0.0.1:28015) rethink address to connect")
 	rethinkDb   = flag.String("rethinkDb", "", "rethink db name")
 	redisAddr   = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
@@ -23,7 +23,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println(util.Version("pusherd"))
+		fmt.Println(Version("pusherd"))
 		return
 	}
 
@@ -46,7 +46,7 @@ func main() {
 		rethinkAddr: *rethinkAddr,
 		rethinkDb:   *rethinkDb,
 		redisAddr:   *redisAddr,
-		httpAddr:    *httpAddr,
+		wsAddr:      *wsAddr,
 		apnsDev:     *apnsDev,
 	}
 	app := NewApp(options)

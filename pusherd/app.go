@@ -24,7 +24,8 @@ type AppOptions struct {
 	rethinkAddr string
 	rethinkDb   string
 	redisAddr   string
-	httpAddr    string
+	wsAddr      string
+	apiAddr     string
 	apnsDev     bool
 }
 
