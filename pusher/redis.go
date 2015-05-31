@@ -40,8 +40,8 @@ func AuthClient(token string) (*Client, error) {
 		return nil, err
 	}
 
-	userId, err2 := strconv.ParseInt(v["user_id"], 10, 64)
-	if err2 != nil {
+	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
+	if err != nil {
 		return nil, err
 	}
 

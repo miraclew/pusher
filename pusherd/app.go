@@ -46,16 +46,12 @@ func NewAppOptions() *AppOptions {
 
 func (a *App) Main() {
 	pusher.Start(a.options.rethinkAddr, a.options.rethinkDb, a.options.redisAddr, a.options.apnsDev)
+	a.startWS()
+	a.startApi()
+}
 
+func (a *App) startWS() {
 	p := pat.New()
-
-	p.Get("/about", api.HandleAbout)
-	p.Get("/info", api.HandleInfo)
-	p.Get("/mq", api.HandleMq)
-	p.Post("/channel_msg", api.HandleChannelMsg)
-	p.Post("/channel", api.HandleChannel)
-	p.Post("/direct_msg", api.HandleDirectMsg)
-
 	p.Get("/ws", WSHandler)
 	p.Get("/", WSHandler)
 
@@ -63,8 +59,37 @@ func (a *App) Main() {
 	n.UseHandler(p)
 
 	go func() {
-		log.Println("http listen ", a.options.httpAddr)
+		log.Println("Http ws listen ", a.options.httpAddr)
 		err := http.ListenAndServe(a.options.httpAddr, n)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
+}
+
+func (a *App) startApi() {
+	p := pat.New()
+	p.Get("/about", api.HandleAbout)
+	p.Get("/info", api.HandleInfo)
+	p.Get("/mq", api.HandleMq)
+	p.Post("/channel_msg", api.HandleChannelMsg)
+	p.Post("/channel", api.HandleChannel)
+	p.Post("/direct_msg", api.HandleDirectMsg)
+
+	n := negroni.Classic()
+	n.UseHandler(p)
+
+	addr, err := net.ResolveTCPAddr("tcp", a.options.httpAddr)
+	if err != nil {
+		log.Fatal("httpAddr ResolveTCPAddr error: %s", err.Error())
+		return
+	}
+	addr.Port += 1
+	addr.IP = net.ParseIP("127.0.0.1")
+
+	go func() {
+		log.Println("Http api listen ", addr.String())
+		err := http.ListenAndServe(addr.String(), n)
 		if err != nil {
 			log.Fatalln(err)
 		}
