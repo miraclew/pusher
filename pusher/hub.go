@@ -41,6 +41,16 @@ func (h *Hub) RemoveConnection(userId int64) {
 	delete(h.connections, userId)
 }
 
+func (h *Hub) DisconnectConnectioin(userId int64) int {
+	conn, ok := h.connections[userId]
+	if !ok {
+		return 0
+	}
+
+	conn.Close()
+	return 1
+}
+
 func (h *Hub) ConnectionsCount() int {
 	return len(h.connections)
 }

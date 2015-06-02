@@ -158,3 +158,17 @@ func HandleMq(res http.ResponseWriter, req *http.Request) {
 		"messages": messages,
 	})
 }
+
+func HandleDisconnect(rw http.ResponseWriter, req *http.Request) {
+	userId := req.URL.Query().Get("user_id")
+	if len(userId) <= 0 {
+		respondFail(res, http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	pusher.DisconnectConnectioin(userId)
+
+	respondOK(res, map[string]interface{}{
+		"messages": "OK",
+	})
+}

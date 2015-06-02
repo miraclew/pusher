@@ -76,6 +76,7 @@ func (a *App) startApi() {
 	p.Post("/channel_msg", api.HandleChannelMsg)
 	p.Post("/channel", api.HandleChannel)
 	p.Post("/direct_msg", api.HandleDirectMsg)
+	p.Post("/disconnect", api.HandleDisconnect)
 
 	n := negroni.Classic()
 	n.UseHandler(p)
