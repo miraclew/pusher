@@ -45,10 +45,20 @@ func AuthClient(token string) (*Client, error) {
 		return nil, err
 	}
 
+	if v["device_type"] == "" {
+		v["device_type"] = "2"
+	}
+
+	deviceType, err := strconv.ParseInt(v["device_type"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	client := &Client{}
 	client.Token = token
 	client.UserId = userId
 	client.Version = v["version"]
+	client.DeviceType = int(deviceType)
 	AddClient(client)
 
 	return client, nil

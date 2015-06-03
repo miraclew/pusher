@@ -1,9 +1,15 @@
 package pusher
 
+const (
+	DEVICE_TYPE_IOS     = 1
+	DEVICE_TYPE_ANDROID = 2
+)
+
 type Client struct {
-	Token   string
-	UserId  int64
-	Version string
+	Token      string
+	UserId     int64
+	Version    string
+	DeviceType int
 }
 
 var clients map[int64]*Client
@@ -25,7 +31,14 @@ func (c *Client) SupportAck() bool {
 		return false
 	}
 
-	v, err := VersionCompare(c.Version, "2.0.5")
+	gtVersion := "2.0.5"
+	if c.DeviceType == DEVICE_TYPE_IOS {
+		gtVersion = "2.0.0"
+	} else if c.DeviceType == DEVICE_TYPE_ANDROID {
+
+	}
+
+	v, err := VersionCompare(c.Version, gtVersion)
 	if err != nil {
 		return false
 	}
