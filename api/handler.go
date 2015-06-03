@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -159,14 +160,20 @@ func HandleMq(res http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func HandleDisconnect(rw http.ResponseWriter, req *http.Request) {
+func HandleDisconnect(res http.ResponseWriter, req *http.Request) {
 	userId := req.URL.Query().Get("user_id")
 	if len(userId) <= 0 {
 		respondFail(res, http.StatusBadRequest, "user_id is required")
 		return
 	}
 
-	pusher.DisconnectConnectioin(userId)
+	uid, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		respondFail(res, http.StatusBadRequest, "user_id is int")
+		return
+	}
+
+	pusher.GetHub().DisconnectConnectioin(uid)
 
 	respondOK(res, map[string]interface{}{
 		"messages": "OK",
