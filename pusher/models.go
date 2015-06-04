@@ -31,9 +31,9 @@ type Channel struct {
 type MsgSendOpts struct {
 	TTL           int    `json:"ttl"`
 	Alert         string `json:"alert"`
-	OfflineEnable bool   `json:"offlineEnable"`
-	AckEnable     bool   `json:"ackEnable"`
-	ApnEnable     bool   `json:"apnEnable"`
+	OfflineEnable bool   `json:"offline_enable"`
+	AckEnable     bool   `json:"ack_enable"`
+	ApnEnable     bool   `json:"apn_enable"`
 }
 
 type Message struct {
