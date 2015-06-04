@@ -23,25 +23,27 @@ var upgrader = websocket.Upgrader{
 
 func WSHandler(res http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(res, req, nil)
-	if err != nil {
+	if err != nil || conn == nil {
 		log.Println(err)
 		return
 	}
 
-	log.Println(req.URL.String())
+	defer conn.Close()
+
 	token := req.URL.Query().Get("token")
 	version := req.URL.Query().Get("v")
+	if token == "" || token == "null" {
+		return
+	}
 
 	client, err := pusher.AuthClient(token)
 
 	if err != nil {
 		log.Printf("Auth failed, protocol=%s token=%s, err: %s\n", conn.Subprotocol(), token, err.Error())
-		conn.Close()
 		return
 	}
 
 	userId := client.UserId
-	//conn.WriteJSON(map[string]interface{}{"welcome": "hello, you are connected to push service"})
 	log.Printf("New connection, v=%s protocol=%s token=%s userId=%d\n", version, conn.Subprotocol(), token, userId)
 
 	pusher.GetHub().RemoveConnection(userId)
@@ -51,7 +53,6 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		_, b, err2 := conn.ReadMessage()
 		if err2 != nil {
 			log.Println("Disconnect ", userId, err2.Error())
-			conn.Close()
 			pusher.GetHub().RemoveConnection(userId)
 			break
 		} else {
