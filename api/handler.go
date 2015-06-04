@@ -62,7 +62,6 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 		respondFail(res, http.StatusBadRequest, "body malformed: "+err.Error())
 		return
 	}
-	log.Printf("HandleChannelMsg(%#v)", msg)
 
 	if len(msg.ChannelId) <= 0 {
 		respondFail(res, http.StatusBadRequest, "channel_id is required")
@@ -80,6 +79,8 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 	}
 
 	pusher.CreateMessage(&msg)
+	log.Printf("HandleChannelMsg(%#v)\nOpts(%#v)", msg, msg.Opts)
+
 	pusher.GetHub().PushMsg(&msg)
 
 	respondOK(res, map[string]interface{}{

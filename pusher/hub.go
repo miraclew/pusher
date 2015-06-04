@@ -100,6 +100,7 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 
 		_, online := h.connections[userId]
 		if msg.Opts.OfflineEnable {
+			log.Println("OfflineEnable=true, pushToQueue", userId)
 			h.pushToQueue(userId, msg)
 
 			if online {
@@ -109,12 +110,16 @@ func (h *Hub) toUsers(msg *Message, users []int64) error {
 				}
 			} else {
 				if msg.Opts.ApnEnable {
+					log.Println("pushToIosDevice", userId)
 					go h.pushToIosDevice(userId, msg, 1) // TODO:
 				}
 			}
 		} else {
 			if online {
+				log.Println("OfflineEnable=false, send to online user: ", userId)
 				h.writeMessage(msg, userId)
+			} else {
+				log.Println("OfflineEnable=false, skip offline user: ", userId)
 			}
 		}
 	}
