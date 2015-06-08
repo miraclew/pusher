@@ -31,7 +31,6 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	defer conn.Close()
 
 	token := req.URL.Query().Get("token")
-	version := req.URL.Query().Get("v")
 	if token == "" || token == "null" {
 		return
 	}
@@ -44,7 +43,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	userId := client.UserId
-	log.Printf("New connection, v=%s protocol=%s token=%s userId=%d\n", version, conn.Subprotocol(), token, userId)
+	log.Printf("New client, v=%s/%s p=%s token=%s userId=%d\n", client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId)
 
 	pusher.GetHub().RemoveConnection(userId)
 	pusher.GetHub().AddConnection(userId, conn)

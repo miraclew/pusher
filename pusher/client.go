@@ -1,5 +1,9 @@
 package pusher
 
+import (
+	"fmt"
+)
+
 const (
 	DEVICE_TYPE_IOS     = 1
 	DEVICE_TYPE_ANDROID = 2
@@ -44,4 +48,14 @@ func (c *Client) SupportAck() bool {
 	}
 
 	return v > 0
+}
+
+func (c *Client) DeviceTypeName() string {
+	if c.DeviceType == DEVICE_TYPE_IOS {
+		return "iOS"
+	} else if c.DeviceType == DEVICE_TYPE_ANDROID {
+		return "Android"
+	} else {
+		return fmt.Sprintf("Unknow: %d", c.DeviceType)
+	}
 }
