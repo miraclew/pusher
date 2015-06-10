@@ -34,7 +34,10 @@ func GetHub() *Hub {
 
 func (h *Hub) AddConnection(userId int64, conn *websocket.Conn) {
 	h.connections[userId] = conn
-	h.processQueue(userId)
+	err := h.processQueue(userId)
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 
 func (h *Hub) RemoveConnection(userId int64) {
@@ -145,7 +148,7 @@ func (h *Hub) processQueue(userId int64) (err error) {
 
 	conn := pool.Get()
 	defer conn.Close()
-	ids, err2 := redis.Strings(conn.Do("lrange", fmt.Sprintf("mq:%d", userId), 0, 9))
+	ids, err2 := redis.Strings(conn.Do("lrange", fmt.Sprintf("mq:%d", userId), 0, -1))
 
 	if err2 != nil {
 		return err2
@@ -155,6 +158,7 @@ func (h *Hub) processQueue(userId int64) (err error) {
 		return nil
 	}
 
+	log.Println("queue size: ", len(ids))
 	for i := 0; i < len(ids); i++ {
 		msgId := ids[i]
 
