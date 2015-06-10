@@ -57,6 +57,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		} else {
 			data := string(b)
 			if data == "p" || data == "ping" {
+				conn.WriteMessage(websocket.TextMessage, []byte("q"))
 				continue
 			}
 
