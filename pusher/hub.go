@@ -148,7 +148,8 @@ func (h *Hub) processQueue(userId int64) (err error) {
 
 	conn := pool.Get()
 	defer conn.Close()
-	ids, err2 := redis.Strings(conn.Do("lrange", fmt.Sprintf("mq:%d", userId), 0, -1))
+	key := fmt.Sprintf("mq:%d", userId)
+	ids, err2 := redis.Strings(conn.Do("lrange", key, 0, -1))
 
 	if err2 != nil {
 		return err2
@@ -166,12 +167,20 @@ func (h *Hub) processQueue(userId int64) (err error) {
 		msg, err = FindMessage(msgId)
 
 		if err != nil {
-			log.Println(fmt.Sprintf("FindMessage: %s error: %s", msgId, err.Error()))
+			log.Println(fmt.Sprintf("Error: FindMessage(%s): %s", msgId, err.Error()))
+			_, err := redis.Int(conn.Do("lrem", key, 0, msgId))
+			if err != nil {
+				log.Printf("Error: lrem: %s \n", err.Error())
+			}
 			continue
 		}
 
 		if msg == nil {
-			log.Println(fmt.Sprintf("msgId: %s not found", msgId))
+			log.Println(fmt.Sprintf("Error: msgId: %s not found", msgId))
+			_, err := redis.Int(conn.Do("lrem", key, 0, msgId))
+			if err != nil {
+				log.Printf("Error: lrem: %s \n", err.Error())
+			}
 			continue
 		}
 
@@ -182,7 +191,7 @@ func (h *Hub) processQueue(userId int64) (err error) {
 				log.Println(fmt.Sprintf("userId: %d client version=%s lrem msgId=%s", userId, client.Version, msgId))
 				_, err := redis.Int(conn.Do("lrem", fmt.Sprintf("mq:%d", userId), 0, msgId))
 				if err != nil {
-					log.Printf("lrem error: %s \n", err.Error())
+					log.Printf("Error: lrem: %s \n", err.Error())
 				}
 			}
 		}
