@@ -48,6 +48,11 @@ Type & Subtype:
     ST_GE_NEW_POST            = 4003 //帖子
     ST_GE_USER_NB_UPDATE      = 4100 // 用户数值更新
 
+    TYPE_LOVER_EVENT          = 7
+    ST_LE_NEW_LIKE            = 7001 //点赞
+    ST_LE_NEW_COMMENT         = 7002 //评论
+    ST_LE_NEW_POST            = 7003 //帖子
+
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
     const ST_NE_ALERT               = 5001; // 普通提醒，只需打开应用
