@@ -84,6 +84,8 @@ func FindChannelByHash(hash string) (*Channel, error) {
 		return nil, err
 	}
 
+	defer res.Close()
+
 	channel := &Channel{}
 	res.One(&channel)
 
@@ -102,6 +104,7 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer res.Close()
 
 	channel.Id = res.GeneratedKeys[0]
 
@@ -123,6 +126,7 @@ func FindMessage(id string) (*Message, error) {
 	if err != nil || res.IsNil() {
 		return nil, err
 	}
+	defer res.Close()
 
 	message := &Message{}
 	res.One(message)
@@ -148,6 +152,7 @@ func GetMessagesByChannel(channelId string) ([]*Message, error) {
 	if err != nil || res.IsNil() {
 		return nil, err
 	}
+	defer res.Close()
 
 	messages := []*Message{}
 	res.All(&messages)
@@ -161,6 +166,7 @@ func CreateMessage(m *Message) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer res.Close()
 
 	m.Id = res.GeneratedKeys[0]
 	return m, nil
