@@ -64,7 +64,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			var msg = &pusher.ClientMessage{}
 			err = json.Unmarshal(b, msg)
 			if err != nil {
-				log.Printf("Malformed msg: %d %s %s", userId, data, err2.Error())
+				log.Printf("Malformed msg: %d %s %s", userId, data, err.Error())
 			}
 
 			if msg.Type == pusher.MSG_TYPE_ACK {
