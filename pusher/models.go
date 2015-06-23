@@ -104,7 +104,6 @@ func CreateChannel(hash string, members []string) (*Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Close()
 
 	channel.Id = res.GeneratedKeys[0]
 
@@ -166,7 +165,6 @@ func CreateMessage(m *Message) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Close()
 
 	m.Id = res.GeneratedKeys[0]
 	return m, nil
