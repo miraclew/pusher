@@ -123,6 +123,7 @@ video
         new_letters: int,
         new_water: int,
         tree_level: int,
+        new_lover_applies: int,
     }
 
 ## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
