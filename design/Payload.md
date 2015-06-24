@@ -136,8 +136,8 @@ video
         end_time: int,
         post: {
             id: int,
+            title: string,
             text: string,
-            text_en: string,
             images: string[],
             audio: {
                 url: string,
@@ -145,7 +145,6 @@ video
             }
         },
         comment: string,
-        
     }
 
 ## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
