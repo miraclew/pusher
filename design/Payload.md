@@ -130,6 +130,8 @@ video
     
 ## TYPE_LOVER_EVENT    
 
+该类型下所有子类型的消息格式相同
+
     {
         room_id: int,
         start_time: int,
