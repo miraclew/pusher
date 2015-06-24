@@ -136,7 +136,7 @@ video
         end_time: int,
         post: {
             id: int,
-            text: int,
+            text: string,
             text_en: string,
             images: string[],
             audio: {
