@@ -138,6 +138,7 @@ video
         end_time: int,
         post: {
             id: int,
+            type: int,
             title: string,
             text: string,
             images: string[],
