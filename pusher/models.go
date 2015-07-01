@@ -132,15 +132,25 @@ func FindMessage(id string) (*Message, error) {
 
 	// hacking the sent_at, otherwise it will be as float64 and json encode as sth. like 1.429238904e+09
 	payload := message.Payload.(map[string]interface{})
+	fixLongNumber(payload, "sent_at")
 
-	switch payload["sent_at"].(type) {
-	case float64:
-		payload["sent_at"] = int64(payload["sent_at"].(float64))
-		message.Payload = payload
-	default:
-	}
+	body := payload["body"].(map[string]interface{})
+	payload["body"] = fixLongNumber(body, "start_time")
+	payload["body"] = fixLongNumber(body, "end_time")
 
 	return message, err
+}
+
+func fixLongNumber(m map[string]interface{}, k string) map[string]interface{} {
+	if m != nil && m[k] != nil {
+		switch m[k].(type) {
+		case float64:
+			m[k] = int64(m[k].(float64))
+		default:
+		}
+	}
+
+	return m
 }
 
 func GetMessagesByChannel(channelId string) ([]*Message, error) {
