@@ -52,6 +52,8 @@ Type & Subtype:
     ST_LE_NEW_LIKE            = 7001 //点赞
     ST_LE_NEW_COMMENT         = 7002 //评论
     ST_LE_NEW_POST            = 7003 //帖子
+    
+    ST_LE_ROOM_INFO           = 7005 //房间信息
 
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
@@ -125,6 +127,28 @@ video
         tree_level: int,
         new_lover_applies: int,
     }
+    
+## TYPE_LOVER_EVENT    
+
+该类型下所有子类型的消息格式相同
+
+    {
+        room_id: int,
+        start_time: int,
+        end_time: int,
+        post: {
+            id: int,
+            type: int,
+            title: string,
+            text: string,
+            images: string[],
+            audio: {
+                url: string,
+                length: int,
+            }
+        },
+        comment: string,
+    }
 
 ## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
 ### ST_GE_NOTIFICATION ###
@@ -151,7 +175,7 @@ Apns 推送的消息格式 (iOS)
             "sent_at": int
         }
     }
-
+    
 ## Examples ##
 
 文字聊天消息
@@ -240,4 +264,6 @@ Apns 推送的消息格式 (iOS)
             channel_id: null,
         }
     }
+
+
 
