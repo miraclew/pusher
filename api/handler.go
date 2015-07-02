@@ -78,6 +78,8 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	msg.FixLongNumber()
+
 	pusher.CreateMessage(&msg)
 	log.Printf("HandleChannelMsg(%#v)\nOpts(%#v)", msg, msg.Opts)
 
@@ -115,6 +117,7 @@ func HandleDirectMsg(res http.ResponseWriter, req *http.Request) {
 		respondFail(res, http.StatusBadRequest, "payload is required")
 		return
 	}
+	msg.FixLongNumber()
 
 	pusher.CreateMessage(&msg)
 	pusher.GetHub().PushMsg(&msg)

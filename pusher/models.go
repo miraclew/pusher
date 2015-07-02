@@ -130,15 +130,7 @@ func FindMessage(id string) (*Message, error) {
 	message := &Message{}
 	res.One(message)
 
-	// hacking the sent_at, otherwise it will be as float64 and json encode as sth. like 1.429238904e+09
-	payload := message.Payload.(map[string]interface{})
-	fixLongNumber(payload, "sent_at")
-
-	body := payload["body"].(map[string]interface{})
-	payload["body"] = fixLongNumber(body, "start_time")
-	payload["body"] = fixLongNumber(body, "end_time")
-
-	message.Payload = payload
+	message.FixLongNumber()
 	return message, err
 }
 
@@ -216,4 +208,16 @@ func GetUserQueuedMessages(userId string) ([]string, []*Message, error) {
 	}
 
 	return ids, messages, nil
+}
+
+func (m *Message) FixLongNumber() {
+	// hacking the sent_at, otherwise it will be as float64 and json encode as sth. like 1.429238904e+09
+	payload := m.Payload.(map[string]interface{})
+	fixLongNumber(payload, "sent_at")
+
+	body := payload["body"].(map[string]interface{})
+	payload["body"] = fixLongNumber(body, "start_time")
+	payload["body"] = fixLongNumber(body, "end_time")
+
+	m.Payload = payload
 }
