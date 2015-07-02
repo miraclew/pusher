@@ -151,7 +151,7 @@ video
     }
 
 ## TYPE_NOTIFICATION_EVENT 推送 (点击打开应用) ##
-### ST_GE_NOTIFICATION ###
+### ST_NE_ALERT ###
 
 body 格式 (Android)
 
