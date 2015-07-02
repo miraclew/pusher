@@ -138,6 +138,7 @@ func FindMessage(id string) (*Message, error) {
 	payload["body"] = fixLongNumber(body, "start_time")
 	payload["body"] = fixLongNumber(body, "end_time")
 
+	message.Payload = payload
 	return message, err
 }
 

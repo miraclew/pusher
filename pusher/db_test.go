@@ -7,7 +7,9 @@ import (
 )
 
 func init() {
-	Start("192.168.33.10:28015", "sun", "192.168.33.10:6379", true)
+	//Start("192.168.33.10:28015", "sun", "192.168.33.10:6379", true)
+	//Start("192.168.33.10:28015", "sun", "192.168.33.10:6379", true)
+	Start("localhost:28015", "sun_dev", "192.168.33.10:6379", true)
 	//Start("121.40.51.27:28015", "sun_dev", "192.168.33.10:6379", true)
 }
 
@@ -50,8 +52,8 @@ func _TestGetMessagesByChannel(t *testing.T) {
 }
 
 func TestFindMessage(t *testing.T) {
-	m, err := FindMessage("7494846d-d362-458d-a9f4-2379372f7476")
-	if err != nil {
+	m, err := FindMessage("3a35fb5c-c864-4884-93bd-72ca239194b0")
+	if err != nil || m == nil {
 		t.Fail()
 	}
 

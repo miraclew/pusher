@@ -25,7 +25,7 @@ func _TestMsgSendOpts(t *testing.T) {
 	}
 }
 
-func TestMsgPayloadFix(t *testing.T) {
+func _TestMsgPayloadFix(t *testing.T) {
 	var data = `{
 	"sent_at": 1435743522,
 	"body":{
@@ -64,12 +64,12 @@ func TestMsgPayloadFix(t *testing.T) {
 }
 
 // func TestFindMessage2(t *testing.T) {
-// 	msg, err := FindMessage("00000820-d618-4880-aab7-bc32a756049d")
+// 	msg, err := FindMessage("3a35fb5c-c864-4884-93bd-72ca239194b0")
 // 	if err != nil {
 // 		log.Println(err.Error())
 // 		t.Fail()
 // 	}
 
-// 	log.Printf("%#v", msg.payload)
+// 	log.Printf("%#v", msg.Payload)
 // 	log.Printf("%#v", msg)
 // }
