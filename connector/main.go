@@ -1,13 +1,13 @@
 package main
 
 import (
-	log2 "coding.net/miraclew/pusher/log"
+	"coding.net/miraclew/pusher/xlog"
 	logp "log"
 	"os"
 )
 
 var (
-	log *log2.Logger
+	log *xlog.Logger
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	}
 	defer f.Close()
 
-	log = log2.NewNamed(f, "aa")
+	log = xlog.NewNamed(f, "aa")
 	log.Debug = true
 
 	log.Debugf("debugf %s", "ddd")
