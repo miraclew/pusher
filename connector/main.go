@@ -12,6 +12,7 @@ import (
 
 var (
 	log         *logging.Logger
+	app         *App
 	showVersion = flag.Bool("version", false, "print version string")
 	wsIp        = flag.String("wsIp", "0.0.0.0", "<ip> to listen on for WebSocket clients")
 	wsPort      = flag.Int("wsPort", 9100, "<port> to listen on for WebSocket clients")
@@ -53,7 +54,7 @@ func main() {
 		nodeId:    *nodeId,
 	}
 
-	app := NewApp(options)
+	app = NewApp(options)
 
 	app.Main()
 	<-exitChan
