@@ -1,9 +1,13 @@
 package main
 
 import (
-	"coding.net/miraclew/pusher/log"
+	log2 "coding.net/miraclew/pusher/log"
 	logp "log"
 	"os"
+)
+
+var (
+	log *log2.Logger
 )
 
 func main() {
@@ -14,11 +18,11 @@ func main() {
 	}
 	defer f.Close()
 
-	log := log.NewNamed(f, "aa")
+	log = log2.NewNamed(f, "aa")
 	log.Debug = true
 
-	// log.Debugf("debugf %s", "ddd")
-	// log.Warnf("warn %s", "ddd")
-	// log.Infof("info %s", "ddd")
-	// log.Errorf("error %s", "ddd")
+	log.Debugf("debugf %s", "ddd")
+	log.Warnf("warn %s", "ddd")
+	log.Infof("info %s", "ddd")
+	log.Errorf("error %s", "ddd")
 }
