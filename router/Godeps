@@ -3,3 +3,4 @@ github.com/gorilla/pat
 github.com/garyburd/redigo/redis
 github.com/anachronistic/apns
 github.com/op/go-logging
+github.com/bitly/go-nsq v1.0.4

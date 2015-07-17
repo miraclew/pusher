@@ -81,7 +81,8 @@ func (a *App) startWS() {
 }
 
 func (a *App) startPubSub() {
-	psc := redis.PubSubConn{a.redisPool.Get()}
+	conn := a.redisPool.Get()
+	psc := redis.PubSubConn{conn}
 	channel := fmt.Sprintf("nc:%d", a.options.nodeId)
 	log.Info("redis subscribe %s", channel)
 	psc.Subscribe(channel) // node channel
@@ -92,7 +93,7 @@ func (a *App) startPubSub() {
 		case redis.Subscription:
 			fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
 		case error:
-			log.Error(v.Error())
+			log.Error("Pubsub receive error: %s", v.Error())
 			time.Sleep(time.Millisecond)
 		}
 	}
