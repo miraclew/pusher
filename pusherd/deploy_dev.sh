@@ -1,1 +1,1 @@
-scp ~/go/bin/linux_amd64/pusherd ubuntu@121.40.51.27:/data/pusher/dev/pusherd
+scp ~/go/bin/linux_amd64/pusherd ubuntu@gx2:/data/pusher/dev/pusherd

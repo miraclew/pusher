@@ -83,7 +83,7 @@ func HandleChannelMsg(res http.ResponseWriter, req *http.Request) {
 	pusher.CreateMessage(&msg)
 	log.Printf("HandleChannelMsg(%#v)\nOpts(%#v)", msg, msg.Opts)
 
-	pusher.GetHub().PushMsg(&msg)
+	go pusher.GetHub().PushMsg(&msg)
 
 	respondOK(res, map[string]interface{}{
 		"message": msg,
@@ -120,7 +120,7 @@ func HandleDirectMsg(res http.ResponseWriter, req *http.Request) {
 	msg.FixLongNumber()
 
 	pusher.CreateMessage(&msg)
-	pusher.GetHub().PushMsg(&msg)
+	go pusher.GetHub().PushMsg(&msg)
 
 	respondOK(res, map[string]interface{}{
 		"message": msg,
