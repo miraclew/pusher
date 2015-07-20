@@ -1,2 +1,4 @@
 */*.log
-v.log
+version.go
+router
+connector

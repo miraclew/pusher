@@ -14,6 +14,7 @@ type App struct {
 	waitGroup sync.WaitGroup
 	exitChan  chan int
 	redisPool *redis.Pool
+	consumer  *nsq.Consumer
 }
 
 type AppOptions struct {
@@ -56,29 +57,32 @@ func NewAppOptions() *AppOptions {
 }
 
 func (a *App) Main() {
-	go a.startPubSub()
-}
-
-func (a *App) startPubSub() {
 	cfg := nsq.NewConfig()
-	consumer, err := nsq.NewConsumer("topic", "channel", cfg)
+	var err error
+	a.consumer, err = nsq.NewConsumer("test", "test-channel", cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
 	}
-	consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
-	consumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
-	consumer.AddHandler(a)
+	a.consumer.AddHandler(a)
+
+	a.consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
+	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
+	a.consumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
+	log.Info("ConnectToNSQLookupds %s", a.options.lookupdHTTPAddrs.String())
 }
 
 func (a *App) HandleMessage(message *nsq.Message) error {
-	log.Debug("HandleMessage %#v", message)
+	// log.Debug("HandleMessage %#v", message)
+	log.Debug("HandleMessage %s", string(message.Body))
 
 	return nil
 }
 
 func (a *App) Exit() {
-
+	if a.consumer != nil {
+		a.consumer.Stop()
+	}
 	close(a.exitChan)
 	a.waitGroup.Wait()
 }

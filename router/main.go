@@ -21,22 +21,33 @@ var (
 
 var log *logging.Logger
 
-func main() {
-	flag.Parse()
-	// flag.Var(value, name, usage)
-
-	if *showVersion {
-		fmt.Println(Version("router"))
-		return
-	}
-
+func init() {
+	flag.Var(&nsqdTCPAddrs, "nsqd-tcp-address", "nsqd TCP address (may be given multiple times)")
+	flag.Var(&lookupdHTTPAddrs, "lookupd-http-address", "lookupd HTTP address (may be given multiple times)")
 	var err error
 	log, err = xlog.Open("router")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+}
+
+func main() {
+	flag.Parse()
 	defer xlog.Close()
+
+	if *showVersion {
+		fmt.Println(Version("router"))
+		return
+	}
+
+	if len(nsqdTCPAddrs) == 0 && len(lookupdHTTPAddrs) == 0 {
+		log.Fatalf("--nsqd-tcp-address or --lookupd-http-address required.")
+	}
+
+	if len(nsqdTCPAddrs) != 0 && len(lookupdHTTPAddrs) != 0 {
+		log.Fatalf("use --nsqd-tcp-address or --lookupd-http-address not both")
+	}
 
 	log.Info(Version("router"))
 
@@ -49,8 +60,10 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	options := &AppOptions{
-		redisAddr: *redisAddr,
-		apnsDev:   *apnsDev,
+		redisAddr:        *redisAddr,
+		nsqdTCPAddrs:     nsqdTCPAddrs,
+		lookupdHTTPAddrs: lookupdHTTPAddrs,
+		apnsDev:          *apnsDev,
 	}
 	app := NewApp(options)
 
