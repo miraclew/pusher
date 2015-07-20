@@ -1,5 +1,9 @@
 package app
 
+import (
+	"time"
+)
+
 const (
 	MSG_TYPE_DIRECT  = 1
 	MSG_TYPE_CHANNEL = 2
@@ -10,7 +14,7 @@ type Message struct {
 	Id        string       `json:"id"`
 	Type      int          `json:"type"`
 	SenderId  string       `json:"sender_id"`
-	ChannelId string       `json:"channel_id"`
+	Receiver  string       `json:"receiver"`
 	Payload   interface{}  `json:"payload"`
 	Opts      *MsgSendOpts `json:"opts"`
 	Timestamp int64        `json:"timestamp"`
@@ -30,9 +34,9 @@ type MsgSendOpts struct {
 	ApnEnable     bool   `json:"apn_enable"`
 }
 
-func NewMessage(channelId string, typ int, payload interface{}, senderId string, opts *MsgSendOpts) *Message {
+func NewMessage(typ int, senderId string, receiver string, payload interface{}, opts *MsgSendOpts) *Message {
 	return &Message{
-		ChannelId: channelId, Type: typ, Payload: payload,
-		SenderId: senderId, Opts: opts, CreatedAt: time.Now(),
+		Receiver: receiver, Type: typ, Payload: payload,
+		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano(),
 	}
 }
