@@ -1,7 +1,10 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/push"
+	"encoding/json"
 	"fmt"
+	"github.com/bitly/go-nsq"
 	"github.com/codegangsta/negroni"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/pat"
@@ -15,14 +18,17 @@ type App struct {
 	waitGroup sync.WaitGroup
 	exitChan  chan int
 	redisPool *redis.Pool
+	consumer  *nsq.Consumer
 }
 
 type AppOptions struct {
-	wsIp      string
-	wsPort    int
-	nodeId    int
-	redisAddr string
-	apnsDev   bool
+	wsIp             string
+	wsPort           int
+	nodeId           int
+	redisAddr        string
+	nsqdTCPAddrs     push.StringArray
+	lookupdHTTPAddrs push.StringArray
+	apnsDev          bool
 }
 
 func NewApp(options *AppOptions) *App {
@@ -59,7 +65,36 @@ func NewAppOptions() *AppOptions {
 
 func (a *App) Main() {
 	a.startWS()
-	a.startPubSub()
+	a.startConsumer()
+}
+
+func (a *App) startConsumer() {
+	cfg := nsq.NewConfig()
+	var err error
+	a.consumer, err = nsq.NewConsumer("server", "router", cfg)
+	if err != nil {
+		log.Error("nsq.NewConsumer error: %s", err.Error())
+		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
+	}
+	a.consumer.AddHandler(a)
+
+	a.consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
+	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
+	a.consumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
+	log.Info("ConnectToNSQLookupds %s", a.options.lookupdHTTPAddrs.String())
+}
+
+func (a *App) HandleMessage(message *nsq.Message) error {
+	// log.Debug("HandleMessage %#v", message)
+	log.Debug("HandleMessage %s", string(message.Body))
+	var v push.Message
+	err := json.Unmarshal(message.Body, &v)
+	if err != nil {
+		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (a *App) startWS() {
@@ -80,24 +115,24 @@ func (a *App) startWS() {
 	}()
 }
 
-func (a *App) startPubSub() {
-	conn := a.redisPool.Get()
-	psc := redis.PubSubConn{conn}
-	channel := fmt.Sprintf("nc:%d", a.options.nodeId)
-	log.Info("redis subscribe %s", channel)
-	psc.Subscribe(channel) // node channel
-	for {
-		switch v := psc.Receive().(type) {
-		case redis.Message:
-			fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
-		case redis.Subscription:
-			fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
-		case error:
-			log.Error("Pubsub receive error: %s", v.Error())
-			time.Sleep(time.Millisecond)
-		}
-	}
-}
+// func (a *App) startPubSub() {
+// 	conn := a.redisPool.Get()
+// 	psc := redis.PubSubConn{conn}
+// 	channel := fmt.Sprintf("nc:%d", a.options.nodeId)
+// 	log.Info("redis subscribe %s", channel)
+// 	psc.Subscribe(channel) // node channel
+// 	for {
+// 		switch v := psc.Receive().(type) {
+// 		case redis.Message:
+// 			fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
+// 		case redis.Subscription:
+// 			fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
+// 		case error:
+// 			log.Error("Pubsub receive error: %s", v.Error())
+// 			time.Sleep(time.Millisecond)
+// 		}
+// 	}
+// }
 
 func (a *App) Exit() {
 

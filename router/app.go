@@ -60,7 +60,7 @@ func NewAppOptions() *AppOptions {
 func (a *App) Main() {
 	cfg := nsq.NewConfig()
 	var err error
-	a.consumer, err = nsq.NewConsumer("test", "test-channel", cfg)
+	a.consumer, err = nsq.NewConsumer("server", "router", cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
