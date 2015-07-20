@@ -1,6 +1,7 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/app"
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
@@ -11,22 +12,25 @@ import (
 )
 
 var (
-	showVersion = flag.Bool("version", false, "print version string")
-	redisAddr   = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
-	apnsDev     = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
-	err         error
+	showVersion      = flag.Bool("version", false, "print version string")
+	redisAddr        = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
+	nsqdTCPAddrs     = app.StringArray{}
+	lookupdHTTPAddrs = app.StringArray{}
 )
 
 var log *logging.Logger
 
 func main() {
 	flag.Parse()
+	// flag.Var(value, name, usage)
 
 	if *showVersion {
 		fmt.Println(Version("router"))
 		return
 	}
 
+	var err error
 	log, err = xlog.Open("router")
 	if err != nil {
 		fmt.Println(err.Error())

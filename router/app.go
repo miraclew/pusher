@@ -1,6 +1,9 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/app"
+	"fmt"
+	"github.com/bitly/go-nsq"
 	"github.com/garyburd/redigo/redis"
 	"sync"
 	"time"
@@ -14,8 +17,10 @@ type App struct {
 }
 
 type AppOptions struct {
-	redisAddr string
-	apnsDev   bool
+	redisAddr        string
+	nsqdTCPAddrs     app.StringArray
+	lookupdHTTPAddrs app.StringArray
+	apnsDev          bool
 }
 
 func NewApp(options *AppOptions) *App {
@@ -55,7 +60,21 @@ func (a *App) Main() {
 }
 
 func (a *App) startPubSub() {
+	cfg := nsq.NewConfig()
+	consumer, err := nsq.NewConsumer("topic", "channel", cfg)
+	if err != nil {
+		log.Error("nsq.NewConsumer error: %s", err.Error())
+		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
+	}
+	consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
+	consumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
+	consumer.AddHandler(a)
+}
 
+func (a *App) HandleMessage(message *nsq.Message) error {
+	log.Debug("HandleMessage %#v", message)
+
+	return nil
 }
 
 func (a *App) Exit() {
