@@ -1,6 +1,7 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/push"
 	"encoding/json"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
@@ -8,6 +9,12 @@ import (
 	"net/http"
 	"strconv"
 )
+
+var clients map[int64]*push.Client
+
+func init() {
+	clients = make(map[int64]*push.Client)
+}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -69,7 +76,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func authClient(token string) (*Client, error) {
+func authClient(token string) (*push.Client, error) {
 	conn := app.redisPool.Get()
 	defer conn.Close()
 
@@ -93,12 +100,14 @@ func authClient(token string) (*Client, error) {
 		return nil, err
 	}
 
-	client := &Client{}
-	client.Token = token
+	client := &push.Client{}
+	// client.Token = token
 	client.UserId = userId
 	client.Version = v["version"]
 	client.DeviceType = int(deviceType)
-	AddClient(client)
+	client.NodeId = app.options.nodeId
+
+	clients[client.UserId] = client
 
 	return client, nil
 }

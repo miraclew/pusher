@@ -1,7 +1,7 @@
 package main
 
 import (
-	"coding.net/miraclew/pusher/app"
+	"coding.net/miraclew/pusher/push"
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
@@ -15,8 +15,9 @@ var (
 	showVersion      = flag.Bool("version", false, "print version string")
 	redisAddr        = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
-	nsqdTCPAddrs     = app.StringArray{}
-	lookupdHTTPAddrs = app.StringArray{}
+	nsqdTCPAddrs     = push.StringArray{}
+	lookupdHTTPAddrs = push.StringArray{}
+	app              *App
 )
 
 var log *logging.Logger
@@ -65,7 +66,7 @@ func main() {
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
 		apnsDev:          *apnsDev,
 	}
-	app := NewApp(options)
+	app = NewApp(options)
 
 	app.Main()
 	<-exitChan

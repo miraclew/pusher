@@ -1,7 +1,8 @@
 package main
 
 import (
-	"coding.net/miraclew/pusher/app"
+	"coding.net/miraclew/pusher/push"
+	"encoding/json"
 	"fmt"
 	"github.com/bitly/go-nsq"
 	"github.com/garyburd/redigo/redis"
@@ -19,8 +20,8 @@ type App struct {
 
 type AppOptions struct {
 	redisAddr        string
-	nsqdTCPAddrs     app.StringArray
-	lookupdHTTPAddrs app.StringArray
+	nsqdTCPAddrs     push.StringArray
+	lookupdHTTPAddrs push.StringArray
 	apnsDev          bool
 }
 
@@ -75,6 +76,12 @@ func (a *App) Main() {
 func (a *App) HandleMessage(message *nsq.Message) error {
 	// log.Debug("HandleMessage %#v", message)
 	log.Debug("HandleMessage %s", string(message.Body))
+	var v push.Message
+	err := json.Unmarshal(message.Body, &v)
+	if err != nil {
+		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
+		return err
+	}
 
 	return nil
 }
