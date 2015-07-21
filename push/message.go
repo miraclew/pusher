@@ -20,13 +20,13 @@ func SetDb(d *sqlx.DB) {
 }
 
 type Message struct {
-	Id        string `json:"id"`
+	Id        int64  `json:"id"`
 	Type      int    `json:"type"`
-	SenderId  int64  `json:"sender_id"`
+	SenderId  int64  `db:"sender_id" json:"sender_id"`
 	Receiver  string `json:"receiver"`
 	Payload   string `json:"payload"`
 	Opts      string `json:"opts"`
-	Timestamp int64  `json:"timestamp"`
+	Timestamp int64  `json:"timestamp"` // milseconds
 }
 
 type ClientMessage struct {
@@ -46,7 +46,7 @@ type MsgSendOpts struct {
 func NewMessage(typ int, senderId int64, receiver string, payload string, opts string) *Message {
 	return &Message{
 		Receiver: receiver, Type: typ, Payload: payload,
-		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano(),
+		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano() / 1000000,
 	}
 }
 
@@ -55,12 +55,21 @@ func (m *Message) ParseOpts() *MsgSendOpts {
 }
 
 func (m *Message) Save() error {
-	_, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, payload, opts, timestamp) VALUES (:type, :sender_id, :receiver, :payload, :opts, :timestamp)`, m)
-	return err
+	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, payload, opts, timestamp) VALUES (:type, :sender_id, :receiver, :payload, :opts, :timestamp)`, m)
+	if err != nil {
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	m.Id = id
+	return nil
 }
 
-func FindMessage(id string) (*Message, error) {
+func FindMessage(id int64) (*Message, error) {
 	msg := &Message{}
-	err := db.Get(msg, "SELECT * FROM messages WHERE id=$1", id)
+	err := db.Get(msg, "SELECT * FROM messages WHERE id=?", id)
 	return msg, err
 }
