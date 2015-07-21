@@ -26,6 +26,7 @@ type AppOptions struct {
 	wsPort           int
 	nodeId           int
 	redisAddr        string
+	mysqlAddr        string
 	nsqdTCPAddrs     push.StringArray
 	lookupdHTTPAddrs push.StringArray
 	apnsDev          bool

@@ -13,7 +13,8 @@ import (
 
 var (
 	showVersion      = flag.Bool("version", false, "print version string")
-	redisAddr        = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	mysqlAddr        = flag.String("mysql", "", "user:pass@tcp(localhost:3306)/pusher?charset=utf8 mysql address to connect")
 	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
 	nsqdTCPAddrs     = push.StringArray{}
 	lookupdHTTPAddrs = push.StringArray{}
@@ -64,6 +65,7 @@ func main() {
 		redisAddr:        *redisAddr,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
+		mysqlAddr:        *mysqlAddr,
 		apnsDev:          *apnsDev,
 	}
 	app = NewApp(options)

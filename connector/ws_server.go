@@ -63,13 +63,13 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 				continue
 			}
 
-			var msg = &ClientMessage{}
+			var msg = &push.ClientMessage{}
 			err = json.Unmarshal(b, msg)
 			if err != nil {
 				log.Error("Malformed msg: %d %s %s", userId, data, err.Error())
 			}
 
-			if msg.Type == MSG_TYPE_ACK {
+			if msg.Type == push.MSG_TYPE_ACK {
 				handleAck(userId, msg.AckMsgId)
 			}
 		}

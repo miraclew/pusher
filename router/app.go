@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/bitly/go-nsq"
 	"github.com/garyburd/redigo/redis"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"sync"
 	"time"
 )
@@ -15,6 +17,7 @@ type App struct {
 	waitGroup sync.WaitGroup
 	exitChan  chan int
 	redisPool *redis.Pool
+	db        *sqlx.DB
 	consumer  *nsq.Consumer
 }
 
@@ -22,6 +25,7 @@ type AppOptions struct {
 	redisAddr        string
 	nsqdTCPAddrs     push.StringArray
 	lookupdHTTPAddrs push.StringArray
+	mysqlAddr        string
 	apnsDev          bool
 }
 
@@ -42,9 +46,18 @@ func NewApp(options *AppOptions) *App {
 		},
 	}
 
+	db, err := sqlx.Connect("mysql", options.mysqlAddr)
+	if err != nil {
+		log.Error("connect mysql error: %s", err.Error())
+		return nil
+	}
+
+	push.SetDb(db)
+
 	a := &App{
 		options:   options,
 		exitChan:  make(chan int),
+		db:        db,
 		redisPool: pool,
 	}
 
