@@ -1,7 +1,11 @@
 package push
 
 import (
+	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,6 +21,9 @@ var db *sqlx.DB
 
 func SetDb(d *sqlx.DB) {
 	db = d
+}
+
+type ServerMsg struct {
 }
 
 type Message struct {
@@ -52,6 +59,27 @@ func NewMessage(typ int, senderId int64, receiver string, payload string, opts s
 
 func (m *Message) ParseOpts() *MsgSendOpts {
 	return nil
+}
+
+func (m *Message) ParseReceivers() ([]int64, error) {
+	var receivers []int64
+	var errs []string
+	rs := strings.Split(m.Receiver, ",")
+	for _, r := range rs {
+		uid, err := strconv.ParseInt(r, 10, 64)
+		if err != nil {
+			errs = append(errs, r)
+			continue
+		}
+		receivers = append(receivers, uid)
+	}
+
+	var err error
+	if len(errs) > 0 {
+		err = errors.New(fmt.Sprintf("receivers malform: %s", strings.Join(errs, ",")))
+	}
+
+	return receivers, err
 }
 
 func (m *Message) Save() error {
