@@ -38,11 +38,6 @@ type Message struct {
 	Timestamp int64  `json:"timestamp"` // milseconds
 }
 
-// router => connector node
-type NodeMessage struct {
-	Id int64 `json:"id"`
-}
-
 type ClientMessage struct {
 	Type      int    `json:"type"`
 	AckMsgId  string `json:"ack_msg_id"`

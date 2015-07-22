@@ -8,6 +8,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/pat"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"sync"
 	"time"
@@ -49,6 +50,15 @@ func NewApp(options *AppOptions) *App {
 		},
 	}
 
+	db, err := sqlx.Connect("mysql", options.mysqlAddr)
+	if err != nil {
+		log.Error("connect mysql error: %s", err.Error())
+		return nil
+	}
+
+	push.SetDb(db)
+	push.SetRedisPool(pool)
+
 	a := &App{
 		options:   options,
 		exitChan:  make(chan int),
@@ -72,7 +82,7 @@ func (a *App) Main() {
 func (a *App) startConsumer() {
 	cfg := nsq.NewConfig()
 	var err error
-	a.consumer, err = nsq.NewConsumer("server", "router", cfg)
+	a.consumer, err = nsq.NewConsumer(fmt.Sprintf("connector-%d", a.options.nodeId), "connector", cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))

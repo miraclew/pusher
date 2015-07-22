@@ -1,6 +1,7 @@
 package main
 
 import (
+	"coding.net/miraclew/pusher/push"
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
@@ -11,33 +12,50 @@ import (
 )
 
 var (
-	log         *logging.Logger
-	app         *App
-	showVersion = flag.Bool("version", false, "print version string")
-	wsIp        = flag.String("wsIp", "0.0.0.0", "<ip> to listen on for WebSocket clients")
-	wsPort      = flag.Int("wsPort", 9100, "<port> to listen on for WebSocket clients")
-	nodeId      = flag.Int("nodeId", 1, "id of the connector")
-	apiAddr     = flag.String("apiAddr", "127.0.0.1:9011", "<addr>:<port> to listen on for Http Api clients")
-	redisAddr   = flag.String("redisAddr", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	app              *App
+	showVersion      = flag.Bool("version", false, "print version string")
+	wsIp             = flag.String("ws-ip", "0.0.0.0", "<ip> to listen on for WebSocket clients")
+	wsPort           = flag.Int("ws-port", 9100, "<port> to listen on for WebSocket clients")
+	nodeId           = flag.Int("node-id", 0, "id of the connector")
+	apiAddr          = flag.String("api-addr", "127.0.0.1:9011", "<addr>:<port> to listen on for Http Api clients")
+	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	nsqdTCPAddrs     = push.StringArray{}
+	lookupdHTTPAddrs = push.StringArray{}
 )
+
+var log *logging.Logger
+
+func init() {
+	flag.Var(&nsqdTCPAddrs, "nsqd-tcp-address", "nsqd TCP address (may be given multiple times)")
+	flag.Var(&lookupdHTTPAddrs, "lookupd-http-address", "lookupd HTTP address (may be given multiple times)")
+	var err error
+	log, err = xlog.Open("router")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+}
 
 func main() {
 	flag.Parse()
+
+	defer xlog.Close()
 
 	if *showVersion {
 		fmt.Println(Version("connector"))
 		return
 	}
 
-	var err error
-	log, err = xlog.Open("connector")
-	if err != nil {
-		fmt.Println(err.Error())
+	log.Info(Version("connector"))
+
+	if *nodeId == 0 {
+		fmt.Println("node-id is required")
 		return
 	}
-	defer xlog.Close()
 
-	log.Info(Version("connector"))
+	if len(nsqdTCPAddrs) == 0 && len(lookupdHTTPAddrs) == 0 {
+		log.Fatalf("--nsqd-tcp-address or --lookupd-http-address required.")
+	}
 
 	exitChan := make(chan int)
 	signalChan := make(chan os.Signal, 1)
@@ -48,10 +66,12 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	options := &AppOptions{
-		redisAddr: *redisAddr,
-		wsIp:      *wsIp,
-		wsPort:    *wsPort,
-		nodeId:    *nodeId,
+		redisAddr:        *redisAddr,
+		wsIp:             *wsIp,
+		wsPort:           *wsPort,
+		nodeId:           *nodeId,
+		nsqdTCPAddrs:     nsqdTCPAddrs,
+		lookupdHTTPAddrs: lookupdHTTPAddrs,
 	}
 
 	app = NewApp(options)

@@ -85,6 +85,7 @@ func authClient(token string) (*push.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Debug("token:%s %#v", token, v)
 
 	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
 	if err != nil {
@@ -108,6 +109,7 @@ func authClient(token string) (*push.Client, error) {
 	client.NodeId = app.options.nodeId
 
 	clients[client.UserId] = client
+	client.Save()
 
 	return client, nil
 }
