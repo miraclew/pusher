@@ -43,12 +43,8 @@ func main() {
 		return
 	}
 
-	if len(nsqdTCPAddrs) == 0 && len(lookupdHTTPAddrs) == 0 {
-		log.Fatalf("--nsqd-tcp-address or --lookupd-http-address required.")
-	}
-
-	if len(nsqdTCPAddrs) != 0 && len(lookupdHTTPAddrs) != 0 {
-		log.Fatalf("use --nsqd-tcp-address or --lookupd-http-address not both")
+	if len(nsqdTCPAddrs) == 0 || len(lookupdHTTPAddrs) == 0 {
+		log.Fatalf("--nsqd-tcp-address and --lookupd-http-address required.")
 	}
 
 	log.Info(Version("router"))

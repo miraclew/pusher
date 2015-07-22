@@ -9,7 +9,7 @@ import (
 
 func setup() {
 	var err error
-	db, err = sqlx.Connect("mysql", "root:abc123@tcp(ubuntu:3306)/pusher?charset=utf8")
+	db, err = sqlx.Connect("mysql", "root:abc123@tcp(ubuntu:3306)/sun_push?charset=utf8")
 	if err != nil {
 		log.Println(err.Error())
 		return

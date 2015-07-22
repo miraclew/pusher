@@ -14,9 +14,9 @@ const (
 	ONLINE_TIMEOUT      = 30
 )
 
-var pool redis.Pool
+var pool *redis.Pool
 
-func SetRedisPool(p redis.Pool) {
+func SetRedisPool(p *redis.Pool) {
 	pool = p
 }
 

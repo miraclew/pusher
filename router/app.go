@@ -19,6 +19,7 @@ type App struct {
 	redisPool *redis.Pool
 	db        *sqlx.DB
 	consumer  *nsq.Consumer
+	router    *Router
 }
 
 type AppOptions struct {
@@ -53,6 +54,7 @@ func NewApp(options *AppOptions) *App {
 	}
 
 	push.SetDb(db)
+	push.SetRedisPool(pool)
 
 	a := &App{
 		options:   options,
@@ -71,6 +73,8 @@ func NewAppOptions() *AppOptions {
 }
 
 func (a *App) Main() {
+	a.router = NewRouter()
+
 	cfg := nsq.NewConfig()
 	var err error
 	a.consumer, err = nsq.NewConsumer("server", "router", cfg)
@@ -96,7 +100,7 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 		return err
 	}
 
-	return nil
+	return a.router.route(&v)
 }
 
 func (a *App) Exit() {

@@ -26,14 +26,21 @@ func SetDb(d *sqlx.DB) {
 type ServerMsg struct {
 }
 
+// server => router
 type Message struct {
 	Id        int64  `json:"id"`
 	Type      int    `json:"type"`
+	SubType   int    `db:"sub_type" json:"sub_type"`
 	SenderId  int64  `db:"sender_id" json:"sender_id"`
 	Receiver  string `json:"receiver"`
-	Payload   string `json:"payload"`
+	Body      string `json:"body"`
 	Opts      string `json:"opts"`
 	Timestamp int64  `json:"timestamp"` // milseconds
+}
+
+// router => connector node
+type NodeMessage struct {
+	Id int64 `json:"id"`
 }
 
 type ClientMessage struct {
@@ -50,9 +57,9 @@ type MsgSendOpts struct {
 	ApnEnable     bool   `json:"apn_enable"`
 }
 
-func NewMessage(typ int, senderId int64, receiver string, payload string, opts string) *Message {
+func NewMessage(typ int, senderId int64, receiver string, body string, opts string) *Message {
 	return &Message{
-		Receiver: receiver, Type: typ, Payload: payload,
+		Receiver: receiver, Type: typ, Body: body,
 		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano() / 1000000,
 	}
 }
@@ -83,7 +90,7 @@ func (m *Message) ParseReceivers() ([]int64, error) {
 }
 
 func (m *Message) Save() error {
-	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, payload, opts, timestamp) VALUES (:type, :sender_id, :receiver, :payload, :opts, :timestamp)`, m)
+	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, body, opts, timestamp) VALUES (:type, :sender_id, :receiver, :body, :opts, :timestamp)`, m)
 	if err != nil {
 		return err
 	}
