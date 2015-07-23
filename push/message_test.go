@@ -20,19 +20,22 @@ func setup() {
 	SetDb(db)
 }
 
-func _TestSave(t *testing.T) {
+func TestSave(t *testing.T) {
 	setup()
-	msg := NewMessage(MSG_TYPE_ACK, 123, "111", 0, "payload", "opts")
-	err := msg.Save()
-	if err != nil {
-		log.Fatalln(err.Error())
-		t.Fail()
-	}
+	// msg := NewMessage(MSG_TYPE_ACK, 123, "111", 0, "payload", "opts")
+	// err := msg.Save()
+	// if err != nil {
+	// 	log.Fatalln(err.Error())
+	// 	t.Fail()
+	// }
 
-	msg2, err := FindMessage(msg.Id)
+	msg2, err := FindMessage(208)
 	if err != nil {
 		log.Fatalln(err.Error())
 		t.Fail()
 	}
 	log.Println(msg2)
+
+	p, err2 := msg2.GetPayload()
+	log.Println(string(p), err2)
 }

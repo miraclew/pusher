@@ -8,6 +8,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/pat"
+	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
 	"time"
@@ -120,8 +121,16 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 		err = json.Unmarshal(cmd.Body, body)
 
 		log.Debug("NodeCmdPush: msgId=%d receiverId: %d payload: %s", body.MsgId, body.ReceiverId, string(body.Payload))
-
-		return nil
+		conn := GetConnection(body.ReceiverId)
+		if conn != nil {
+			err := conn.WriteMessage(websocket.TextMessage, body.Payload)
+			if err != nil {
+				log.Error("WriteMessage err: %s", err.Error())
+				return err
+			}
+		} else {
+			log.Warning("No Connection")
+		}
 	}
 
 	return nil
