@@ -1,6 +1,7 @@
 package push
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -33,8 +34,10 @@ type Message struct {
 	SubType   int    `db:"sub_type" json:"sub_type"`
 	SenderId  int64  `db:"sender_id" json:"sender_id"`
 	Receiver  string `json:"receiver"`
+	ChatId    int64  `db:"chat_id" json:"chat_id"`
 	Body      string `json:"body"`
 	Opts      string `json:"opts"`
+	Extra     string `json:"extra"`
 	Timestamp int64  `json:"timestamp"` // milseconds
 }
 
@@ -52,9 +55,9 @@ type MsgSendOpts struct {
 	ApnEnable     bool   `json:"apn_enable"`
 }
 
-func NewMessage(typ int, senderId int64, receiver string, body string, opts string) *Message {
+func NewMessage(typ int, senderId int64, receiver string, chatId int64, body string, opts string) *Message {
 	return &Message{
-		Receiver: receiver, Type: typ, Body: body,
+		Receiver: receiver, Type: typ, Body: body, ChatId: chatId,
 		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano() / 1000000,
 	}
 }
@@ -85,7 +88,7 @@ func (m *Message) ParseReceivers() ([]int64, error) {
 }
 
 func (m *Message) Save() error {
-	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, body, opts, timestamp) VALUES (:type, :sender_id, :receiver, :body, :opts, :timestamp)`, m)
+	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, chat_id, body, opts, extra, timestamp) VALUES (:type, :sender_id, :receiver, :chat_id, :body, :opts, :extra, :timestamp)`, m)
 	if err != nil {
 		return err
 	}
@@ -96,6 +99,10 @@ func (m *Message) Save() error {
 
 	m.Id = id
 	return nil
+}
+
+func (m *Message) GetPayload() ([]byte, error) {
+	return json.Marshal(m)
 }
 
 func FindMessage(id int64) (*Message, error) {
