@@ -20,6 +20,7 @@ type App struct {
 	exitChan  chan int
 	redisPool *redis.Pool
 	consumer  *nsq.Consumer
+	producers map[string]*nsq.Producer
 }
 
 type AppOptions struct {
@@ -75,8 +76,28 @@ func NewAppOptions() *AppOptions {
 }
 
 func (a *App) Main() {
-	a.startWS()
+	a.createProducers()
 	a.startConsumer()
+
+	a.startWS()
+}
+
+func (a *App) createProducers() {
+	a.producers = make(map[string]*nsq.Producer)
+	cfg := nsq.NewConfig()
+	// cfg.UserAgent = fmt.Sprintf("to_nsq/%s go-nsq/%s", version.Binary, nsq.VERSION)
+
+	for _, addr := range a.options.nsqdTCPAddrs {
+		producer, err := nsq.NewProducer(addr, cfg)
+		if err != nil {
+			log.Fatalf("failed to create nsq.Producer - %s", err)
+		}
+		a.producers[addr] = producer
+	}
+
+	if len(a.producers) == 0 {
+		log.Fatal("--nsqd-tcp-address required")
+	}
 }
 
 func (a *App) startConsumer() {
