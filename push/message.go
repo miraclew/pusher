@@ -63,7 +63,9 @@ func NewMessage(typ int, senderId int64, receiver string, chatId int64, body str
 }
 
 func (m *Message) ParseOpts() *MsgSendOpts {
-	return nil
+	opt := &MsgSendOpts{}
+	json.Unmarshal([]byte(m.Opts), opt)
+	return opt
 }
 
 func (m *Message) ParseReceivers() ([]int64, error) {
@@ -102,7 +104,17 @@ func (m *Message) Save() error {
 }
 
 func (m *Message) GetPayload() ([]byte, error) {
-	return json.Marshal(m)
+	return json.Marshal(map[string]interface{}{
+		"id":        fmt.Sprintf("%d", m.Id),
+		"type":      m.Type,
+		"sub_type":  m.SubType,
+		"chat_id":   m.ChatId,
+		"sender_id": fmt.Sprintf("%d", m.SenderId),
+		"ttl":       m.ParseOpts().TTL,
+		"sent_at":   m.Timestamp / 1000,
+		"body":      m.Body,
+		"extra":     m.Extra,
+	})
 }
 
 func FindMessage(id int64) (*Message, error) {

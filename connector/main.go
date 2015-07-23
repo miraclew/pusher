@@ -17,6 +17,7 @@ var (
 	wsIp             = flag.String("ws-ip", "0.0.0.0", "<ip> to listen on for WebSocket clients")
 	wsPort           = flag.Int("ws-port", 9100, "<port> to listen on for WebSocket clients")
 	nodeId           = flag.Int("node-id", 0, "id of the connector")
+	clientTimeout    = flag.Int("client-timeout", 300, "id of the connector")
 	apiAddr          = flag.String("api-addr", "127.0.0.1:9011", "<addr>:<port> to listen on for Http Api clients")
 	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 	nsqdTCPAddrs     = push.StringArray{}
@@ -70,6 +71,7 @@ func main() {
 		wsIp:             *wsIp,
 		wsPort:           *wsPort,
 		nodeId:           *nodeId,
+		clientTimeout:    *clientTimeout,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
 	}

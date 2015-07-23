@@ -8,7 +8,6 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/pat"
-	"github.com/jmoiron/sqlx"
 	"net/http"
 	"sync"
 	"time"
@@ -28,7 +27,7 @@ type AppOptions struct {
 	wsPort           int
 	nodeId           int
 	redisAddr        string
-	mysqlAddr        string
+	clientTimeout    int
 	nsqdTCPAddrs     push.StringArray
 	lookupdHTTPAddrs push.StringArray
 	apnsDev          bool
@@ -51,13 +50,6 @@ func NewApp(options *AppOptions) *App {
 		},
 	}
 
-	db, err := sqlx.Connect("mysql", options.mysqlAddr)
-	if err != nil {
-		log.Error("connect mysql error: %s", err.Error())
-		return nil
-	}
-
-	push.SetDb(db)
 	push.SetRedisPool(pool)
 
 	a := &App{
@@ -117,13 +109,19 @@ func (a *App) startConsumer() {
 }
 
 func (a *App) HandleMessage(message *nsq.Message) error {
-	// log.Debug("HandleMessage %#v", message)
-	log.Debug("HandleMessage %s", string(message.Body))
-	var v push.Message
-	err := json.Unmarshal(message.Body, &v)
+	// log.Debug("HandleMessage %s", string(message.Body))
+	cmd := &push.NodeCmd{}
+	err := json.Unmarshal(message.Body, cmd)
 	if err != nil {
 		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
-		return err
+	}
+	if cmd.Cmd == push.NODE_CMD_PUSH {
+		body := &push.NodeCmdPush{}
+		err = json.Unmarshal(cmd.Body, body)
+
+		log.Debug("NodeCmdPush: msgId=%d receiverId: %d payload: %s", body.MsgId, body.ReceiverId, string(body.Payload))
+
+		return nil
 	}
 
 	return nil
@@ -146,25 +144,6 @@ func (a *App) startWS() {
 		}
 	}()
 }
-
-// func (a *App) startPubSub() {
-// 	conn := a.redisPool.Get()
-// 	psc := redis.PubSubConn{conn}
-// 	channel := fmt.Sprintf("nc:%d", a.options.nodeId)
-// 	log.Info("redis subscribe %s", channel)
-// 	psc.Subscribe(channel) // node channel
-// 	for {
-// 		switch v := psc.Receive().(type) {
-// 		case redis.Message:
-// 			fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
-// 		case redis.Subscription:
-// 			fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
-// 		case error:
-// 			log.Error("Pubsub receive error: %s", v.Error())
-// 			time.Sleep(time.Millisecond)
-// 		}
-// 	}
-// }
 
 func (a *App) Exit() {
 

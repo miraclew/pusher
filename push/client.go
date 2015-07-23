@@ -29,6 +29,39 @@ type Client struct {
 	LastActive int64
 }
 
+func AuthClient(token string) (*Client, error) {
+	conn := pool.Get()
+	defer conn.Close()
+
+	v, err := redis.StringMap(conn.Do("hgetall", "token:"+token))
+
+	if err != nil {
+		return nil, err
+	}
+	// log.Debug("token:%s %#v", token, v)
+
+	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	if v["device_type"] == "" {
+		v["device_type"] = "2"
+	}
+
+	deviceType, err := strconv.ParseInt(v["device_type"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &Client{}
+	client.UserId = userId
+	client.Version = v["version"]
+	client.DeviceType = int(deviceType)
+	// client.NodeId = app.options.nodeId
+	return client, nil
+}
+
 func GetClient(userId int64) (*Client, error) {
 	conn := pool.Get()
 	defer conn.Close()
@@ -52,25 +85,38 @@ func GetClient(userId int64) (*Client, error) {
 	}, nil
 }
 
+func RemoveClient(userId int64) {
+	conn := pool.Get()
+	defer conn.Close()
+
+	k := fmt.Sprintf("client:%d", userId)
+	conn.Do("del", k)
+}
+
 func (c *Client) Save() error {
 	conn := pool.Get()
 	defer conn.Close()
 
-	args := redis.Args{}
-	args.Add(fmt.Sprintf("client:%d", c.UserId))
-	args.AddFlat(map[string]string{
+	k := fmt.Sprintf("client:%d", c.UserId)
+	_, err := conn.Do("hmset", redis.Args{}.Add(k).AddFlat(map[string]string{
 		"u":    fmt.Sprintf("%d", c.UserId),
 		"dt":   fmt.Sprintf("%d", c.DeviceType),
 		"node": fmt.Sprintf("%d", c.NodeId),
 		"la":   fmt.Sprintf("%d", c.LastActive),
 		"v":    c.Version,
-	})
-
-	_, err := conn.Do("hmset", args...)
+	})...)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) Touch(expire int) error {
+	conn := pool.Get()
+	defer conn.Close()
+	k := fmt.Sprintf("client:%d", c.UserId)
+	_, err := conn.Do("expire", k, expire)
+	return err
 }
 
 func (c *Client) IsOnline() bool {

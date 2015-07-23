@@ -15,7 +15,9 @@ func AddConnection(userId int64, conn *websocket.Conn) {
 
 func RemoveConnection(userId int64) {
 	delete(connections, userId)
-	go OnClientOnline(userId, false)
+
+	push.RemoveClient(userId)
+	// go OnClientOnline(userId, false)
 }
 
 func GetConnection(userId int64) *websocket.Conn {

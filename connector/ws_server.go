@@ -7,7 +7,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/websocket"
 	"net/http"
-	"strconv"
 )
 
 var clients map[int64]*push.Client
@@ -37,8 +36,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	client, err := authClient(token)
-
+	client, err := push.AuthClient(token)
 	if err != nil {
 		log.Warning("Auth failed, protocol=%s token=%s, err: %s", conn.Subprotocol(), token, err.Error())
 		return
@@ -46,14 +44,20 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	userId := client.UserId
 	log.Info("New client, v=%s/%s p=%s token=%s userId=%d", client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId)
+	client.NodeId = app.options.nodeId
+	err = client.Save()
+	if err != nil {
+		log.Error("Client save err: %s", err.Error())
+		return
+	}
+	client.Touch(app.options.clientTimeout)
 
-	RemoveConnection(userId)
 	AddConnection(userId, conn)
 	// Reading loop, required
 	for {
 		_, b, err2 := conn.ReadMessage()
 		if err2 != nil {
-			log.Info("Disconnect ", userId, err2.Error())
+			log.Info("Disconnect %d, %s", userId, err2.Error())
 			RemoveConnection(userId)
 			break
 		} else {
@@ -74,44 +78,6 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-}
-
-func authClient(token string) (*push.Client, error) {
-	conn := app.redisPool.Get()
-	defer conn.Close()
-
-	v, err := redis.StringMap(conn.Do("hgetall", "token:"+token))
-
-	if err != nil {
-		return nil, err
-	}
-	log.Debug("token:%s %#v", token, v)
-
-	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	if v["device_type"] == "" {
-		v["device_type"] = "2"
-	}
-
-	deviceType, err := strconv.ParseInt(v["device_type"], 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	client := &push.Client{}
-	// client.Token = token
-	client.UserId = userId
-	client.Version = v["version"]
-	client.DeviceType = int(deviceType)
-	client.NodeId = app.options.nodeId
-
-	clients[client.UserId] = client
-	client.Save()
-
-	return client, nil
 }
 
 func handleAck(userId int64, msgId string) {
