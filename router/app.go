@@ -3,7 +3,6 @@ package main
 import (
 	"coding.net/miraclew/pusher/push"
 	"encoding/json"
-	"fmt"
 	"github.com/bitly/go-nsq"
 	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
@@ -13,13 +12,14 @@ import (
 )
 
 type App struct {
-	options   *AppOptions
-	waitGroup sync.WaitGroup
-	exitChan  chan int
-	redisPool *redis.Pool
-	db        *sqlx.DB
-	consumer  *nsq.Consumer
-	router    *Router
+	options           *AppOptions
+	waitGroup         sync.WaitGroup
+	exitChan          chan int
+	redisPool         *redis.Pool
+	db                *sqlx.DB
+	serverConsumer    *nsq.Consumer
+	nodeEventConsumer *nsq.Consumer
+	router            *Router
 }
 
 type AppOptions struct {
@@ -74,38 +74,79 @@ func NewAppOptions() *AppOptions {
 
 func (a *App) Main() {
 	a.router = NewRouter()
-
-	cfg := nsq.NewConfig()
-	var err error
-	a.consumer, err = nsq.NewConsumer("server", "router", cfg)
-	if err != nil {
-		log.Error("nsq.NewConsumer error: %s", err.Error())
-		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
-	}
-	a.consumer.AddHandler(a)
-
-	a.consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
-	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
-	a.consumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
-	log.Info("ConnectToNSQLookupds %s", a.options.lookupdHTTPAddrs.String())
+	a.startNodeEventConsumer()
+	a.startServerConsumer()
 }
 
-func (a *App) HandleMessage(message *nsq.Message) error {
-	// log.Debug("HandleMessage %#v", message)
-	log.Debug("HandleMessage %s", string(message.Body))
-	var v push.Message
-	err := json.Unmarshal(message.Body, &v)
+func (a *App) startNodeEventConsumer() error {
+	cfg := nsq.NewConfig()
+	var err error
+	a.nodeEventConsumer, err = nsq.NewConsumer("node-event", "router", cfg)
 	if err != nil {
-		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
+		log.Error("nsq.NewConsumer error: %s", err.Error())
+		return err
+	}
+	a.nodeEventConsumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
+		log.Debug("HandleNodeEvent %s", string(m.Body))
+		evt := &push.NodeEvent{}
+		err := json.Unmarshal(m.Body, evt)
+		if err != nil {
+			log.Error("body malformed: body=%s err=%s", string(m.Body), err.Error())
+		}
+		if evt.Event == push.NODE_EVENT_ONLINE {
+			body := &push.NodeEventOnline{}
+			err = json.Unmarshal(evt.Body, body)
+			if err != nil {
+				log.Error("node evnt body malformed: body=%s err=%s", string(evt.Body), err.Error())
+				return err
+			}
+
+			if body.IsOnline {
+				log.Debug("NodeEventOnline: userId: %d online", body.UserId)
+				a.router.processQueue(body.UserId)
+			}
+		}
+		return nil
+	}))
+
+	a.nodeEventConsumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
+	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
+	a.nodeEventConsumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
+	log.Info("ConnectToNSQLookupds %s", a.options.lookupdHTTPAddrs.String())
+	return nil
+}
+
+func (a *App) startServerConsumer() error {
+	cfg := nsq.NewConfig()
+	var err error
+	a.serverConsumer, err = nsq.NewConsumer("server", "router", cfg)
+	if err != nil {
+		log.Error("nsq.NewConsumer error: %s", err.Error())
 		return err
 	}
 
-	return a.router.route(&v)
+	a.serverConsumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
+		log.Debug("HandleServerMessage %s", string(m.Body))
+		var v push.Message
+		err := json.Unmarshal(m.Body, &v)
+		if err != nil {
+			log.Error("body malformed: body=%s err=%s", string(m.Body), err.Error())
+			return err
+		}
+
+		return a.router.route(&v)
+	}))
+
+	a.serverConsumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
+	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
+	a.serverConsumer.ConnectToNSQLookupds(a.options.lookupdHTTPAddrs)
+	log.Info("ConnectToNSQLookupds %s", a.options.lookupdHTTPAddrs.String())
+	return nil
 }
 
 func (a *App) Exit() {
-	if a.consumer != nil {
-		a.consumer.Stop()
+	if a.serverConsumer != nil {
+		a.serverConsumer.Stop()
 	}
 	close(a.exitChan)
 	a.waitGroup.Wait()
