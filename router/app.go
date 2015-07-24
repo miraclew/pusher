@@ -103,7 +103,10 @@ func (a *App) startNodeEventConsumer() error {
 
 			if body.IsOnline {
 				log.Debug("NodeEventOnline: userId: %d online", body.UserId)
-				a.router.processQueue(body.UserId)
+				err = a.router.processQueue(body.UserId)
+				if err != nil {
+					log.Error("processQueue error: %s", err.Error())
+				}
 			}
 		}
 		return nil
