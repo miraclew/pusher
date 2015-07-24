@@ -145,7 +145,7 @@ func (r *Router) processQueue(userId int64) error {
 	if len(ids) <= 0 {
 		return nil
 	}
-	log.Info("queue size: ", len(ids))
+	log.Info("queue size: %d", len(ids))
 	for i := 0; i < len(ids); i++ {
 		var msgId int64
 		msgId, err = strconv.ParseInt(ids[i], 10, 64)
