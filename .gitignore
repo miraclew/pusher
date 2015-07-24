@@ -1,4 +1,4 @@
 */*.log
 version.go
-router
-connector
+prouter
+pconnector
