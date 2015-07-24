@@ -43,7 +43,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	userId := client.UserId
-	log.Info("New client, v=%s/%s p=%s token=%s userId=%d", client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId)
+	log.Info("New client, node=%d v=%s/%s p=%s token=%s userId=%d", app.options.nodeId, client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId)
 	client.NodeId = app.options.nodeId
 	err = client.Save()
 	if err != nil {
