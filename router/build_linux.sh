@@ -15,5 +15,5 @@ func Version(app string) string {
 
 GOOS=linux GOARCH=amd64 go build
 GOOS=linux GOARCH=amd64 go install
-cp $GOPATH/bin/linux_amd64/router ~/ubuntu/prouter
+cp $GOPATH/bin/linux_amd64/router ~/ubuntu/router
 rm router

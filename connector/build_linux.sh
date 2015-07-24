@@ -15,5 +15,5 @@ func Version(app string) string {
 
 GOOS=linux GOARCH=amd64 go build
 GOOS=linux GOARCH=amd64 go install
-cp $GOPATH/bin/linux_amd64/connector ~/ubuntu/pconnector
+cp $GOPATH/bin/linux_amd64/connector ~/ubuntu/connector
 rm connector
