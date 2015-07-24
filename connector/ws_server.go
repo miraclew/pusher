@@ -63,6 +63,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		} else {
 			data := string(b)
 			if data == "p" || data == "ping" {
+				client.Touch(app.options.clientTimeout)
 				conn.WriteMessage(websocket.TextMessage, []byte("q"))
 				continue
 			}
