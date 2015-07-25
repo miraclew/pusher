@@ -30,3 +30,10 @@ type NodeEventOnline struct {
 	UserId   int64
 	IsOnline bool
 }
+
+type ApnsCmd struct {
+	DeviceToken string
+	UserId      int64
+	MsgId       string
+	Payload     []byte
+}

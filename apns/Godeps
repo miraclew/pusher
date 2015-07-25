@@ -1,0 +1,5 @@
+github.com/gorilla/websocket
+github.com/codegangsta/negroni
+github.com/gorilla/pat
+github.com/garyburd/redigo/redis
+github.com/go-sql-driver/mysql v1.2
