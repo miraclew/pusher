@@ -16,6 +16,10 @@ const (
 	ROUTE_TYPE_BULK    = 3
 
 	MSG_TYPE_ACK = 6001
+
+	MSG_OPT_APN_DISABLE     = 0
+	MSG_OPT_APN_DEFAULT     = 1
+	MSG_OPT_APN_NOTIFY_ONLY = 0
 )
 
 var db *sqlx.DB
@@ -48,11 +52,12 @@ type ClientMessage struct {
 }
 
 type MsgSendOpts struct {
-	TTL           int    `json:"ttl"`
-	Alert         string `json:"alert"`
-	OfflineEnable bool   `json:"offline_enable"`
-	AckEnable     bool   `json:"ack_enable"`
-	ApnEnable     bool   `json:"apn_enable"`
+	TTL         int    `json:"ttl"`
+	Alert       string `json:"alert"`
+	OfflineFlag int    `json:"offline_flag"`
+	AckFlag     int    `json:"ack_flag"`
+	ApnFlag     int    `json:"apn_flag"`
+	DeviceType  int    `json:"device_type"`
 }
 
 func NewMessage(typ int, senderId int64, receiver string, chatId int64, body string, opts string) *Message {

@@ -61,6 +61,12 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 		return err
 	}
 
+	apnFlag := msg.ParseOpts().ApnFlag
+	if apnFlag == push.MSG_OPT_APN_NOTIFY_ONLY && client.DeviceType == push.DEVICE_TYPE_IOS {
+		r.publishToApns(userId, msg)
+		return nil
+	}
+
 	if client.IsOnline() {
 		err := r.publishToNode(client.NodeId, userId, msg)
 		if err != nil {
@@ -68,9 +74,9 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 			return err
 		}
 	} else {
-		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnEnable {
+		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
 			// TODO: get device token ddd
-			// r.publishToApns(payload)
+			r.publishToApns(userId, msg)
 		}
 	}
 
@@ -114,8 +120,6 @@ func (r *Router) publishToNode(nodeId int, userId int64, msg *push.Message) erro
 		err := producer.Publish(fmt.Sprintf("connector-%d", nodeId), b)
 		if err != nil {
 			log.Error("Publish error: %s", err.Error())
-
-			return err
 		}
 	}
 
@@ -170,16 +174,34 @@ func (r *Router) processQueue(userId int64) error {
 		err = r.publishToNode(client.NodeId, userId, msg)
 		if err != nil {
 			log.Error("publishToNode(%d, %d, %#v) error: %s", client.NodeId, userId, msg, err.Error())
-			return err
+			continue
 		}
 	}
 	return nil
 }
 
-func (r *Router) publishToApns(body []byte) {
-	for _, producer := range r.producers {
-		producer.Publish("apns", body)
+func (r *Router) publishToApns(userId int64, msg *push.Message) error {
+	log.Info("publishToApns(%d, %d) to %d producers", userId, msg.Id, len(r.producers))
+	cmd := &push.ApnsCmd{}
+	cmd.DeviceToken = "dd" // TODO:
+	cmd.MsgId = fmt.Sprintf("%d", msg.Id)
+	cmd.UserId = userId
+	cmd.Alert = msg.ParseOpts().Alert
+
+	b, err := json.Marshal(cmd)
+	if err != nil {
+		return err
 	}
+
+	for _, producer := range r.producers {
+		err := producer.Publish("apns", b)
+		if err != nil {
+			log.Error("Publish error: %s", err.Error())
+		}
+	}
+
+	return nil
+
 }
 
 func (r *Router) routeChannel(channelId string, msg *push.Message) error {

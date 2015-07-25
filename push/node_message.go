@@ -32,6 +32,7 @@ type NodeEventOnline struct {
 }
 
 type ApnsCmd struct {
+	Alert       string
 	DeviceToken string
 	UserId      int64
 	MsgId       string
