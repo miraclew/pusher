@@ -55,16 +55,18 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 		return err
 	}
 
-	_, err = r.pushToQueue(userId, msg.Id)
-	if err != nil {
-		log.Error("pushToQueue err=%s", err.Error())
-		return err
-	}
-
 	apnFlag := msg.ParseOpts().ApnFlag
 	if apnFlag == push.MSG_OPT_APN_NOTIFY_ONLY && client.DeviceType == push.DEVICE_TYPE_IOS {
 		r.publishToApns(userId, msg)
 		return nil
+	}
+
+	if msg.ParseOpts().OfflineFlag != push.MSG_OPT_OFFLINE_DISABLE {
+		_, err = r.pushToQueue(userId, msg.Id)
+		if err != nil {
+			log.Error("pushToQueue err=%s", err.Error())
+			return err
+		}
 	}
 
 	if client.IsOnline() {
@@ -75,7 +77,6 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 		}
 	} else {
 		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
-			// TODO: get device token ddd
 			r.publishToApns(userId, msg)
 		}
 	}
@@ -181,9 +182,22 @@ func (r *Router) processQueue(userId int64) error {
 }
 
 func (r *Router) publishToApns(userId int64, msg *push.Message) error {
+	conn := app.redisPool.Get()
+	defer conn.Close()
+
+	deviceToken, err := redis.String(conn.Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
+	if err != nil {
+		log.Println("pushToIosDevice error: ", err)
+		return err
+	}
+	if deviceToken == "" {
+		log.Warning("pushToIosDevice %d deviceToken is empty", userId)
+		return nil
+	}
+
 	log.Info("publishToApns(%d, %d) to %d producers", userId, msg.Id, len(r.producers))
 	cmd := &push.ApnsCmd{}
-	cmd.DeviceToken = "dd" // TODO:
+	cmd.DeviceToken = deviceToken
 	cmd.MsgId = fmt.Sprintf("%d", msg.Id)
 	cmd.UserId = userId
 	cmd.Alert = msg.ParseOpts().Alert
@@ -201,7 +215,6 @@ func (r *Router) publishToApns(userId int64, msg *push.Message) error {
 	}
 
 	return nil
-
 }
 
 func (r *Router) routeChannel(channelId string, msg *push.Message) error {
