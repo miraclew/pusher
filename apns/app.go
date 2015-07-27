@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/anachronistic/apns"
 	"github.com/bitly/go-nsq"
-	"os"
 	"sync"
 )
 
@@ -104,8 +103,8 @@ func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	key := a.options.prodKey
 	gatewayUrl := "gateway.push.apple.com:2195"
 	if a.options.sandbox {
-		cert := a.options.sandboxCert
-		key := a.options.sandboxKey
+		cert = a.options.sandboxCert
+		key = a.options.sandboxKey
 		gatewayUrl = "gateway.sandbox.push.apple.com:2195"
 	}
 
