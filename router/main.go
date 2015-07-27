@@ -5,6 +5,7 @@ import (
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/op/go-logging"
 	"os"
 	"os/signal"
@@ -12,9 +13,9 @@ import (
 )
 
 var (
-	showVersion      = flag.Bool("version", false, "print version string")
-	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
-	mysqlAddr        = flag.String("mysql", "", "user:pass@tcp(localhost:3306)/pusher?charset=utf8 mysql address to connect")
+	showVersion = flag.Bool("version", false, "print version string")
+	redisAddr   = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
+	// mysqlAddr        = flag.String("mysql", "", "user:pass@tcp(localhost:3306)/pusher?charset=utf8 mysql address to connect")
 	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
 	nsqdTCPAddrs     = push.StringArray{}
 	lookupdHTTPAddrs = push.StringArray{}
@@ -47,6 +48,13 @@ func main() {
 		log.Fatalf("--nsqd-tcp-address and --lookupd-http-address required.")
 	}
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	mysqlAddr := os.Getenv("MYSQL_DSN")
+	return
+
 	log.Info(Version("router"))
 
 	exitChan := make(chan int)
@@ -61,7 +69,7 @@ func main() {
 		redisAddr:        *redisAddr,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
-		mysqlAddr:        *mysqlAddr,
+		mysqlAddr:        mysqlAddr,
 		apnsDev:          *apnsDev,
 	}
 	app = NewApp(options)
