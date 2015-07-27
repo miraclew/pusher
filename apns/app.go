@@ -78,26 +78,23 @@ func (a *App) startConsumer() {
 }
 
 func (a *App) HandleMessage(message *nsq.Message) error {
-	// log.Debug("HandleMessage %s", string(message.Body))
 	cmd := &push.ApnsCmd{}
 	err := json.Unmarshal(message.Body, cmd)
 	if err != nil {
 		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
 	}
 
-	// log.Debug("NodeCmdPush: msgId=%d receiverId: %d payload: %s", body.MsgId, body.ReceiverId, string(body.Payload))
-
-	return nil
+	return a.pushToDevice(cmd)
 }
 
-func (a *App) pushToIosDevice(userId int64, msgId string, deviceToken string, alert string, length int) error {
-	log.Info("apns msgId:%s userId:%d len:%d deviceToken=%s", msgId, userId, length, deviceToken)
+func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
+	log.Info("apns pushToDevice %#v", cmd)
 	payload := apns.NewPayload()
-	payload.Alert = alert
+	payload.Alert = cmd.Alert
 	payload.Sound = "ping.aiff"
-	payload.Badge = length
+	payload.Badge = cmd.Length
 	pn := apns.NewPushNotification()
-	pn.DeviceToken = deviceToken
+	pn.DeviceToken = cmd.DeviceToken
 	pn.AddPayload(payload)
 	envDir := "prod"
 	gatewayUrl := "gateway.push.apple.com:2195"
@@ -110,9 +107,9 @@ func (a *App) pushToIosDevice(userId int64, msgId string, deviceToken string, al
 	client := apns.NewClient(gatewayUrl, certificateFile, keyFile)
 	resp := client.Send(pn)
 	if !resp.Success {
-		log.Info("apns msgId:%s err: %s", msgId, resp.Error)
+		log.Info("apns msgId:%s err: %s", cmd.MsgId, resp.Error)
 	} else {
-		log.Info("apns msgId:%s success", msgId)
+		log.Info("apns msgId:%s success", cmd.MsgId)
 	}
 	return nil
 }

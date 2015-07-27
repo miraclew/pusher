@@ -36,5 +36,6 @@ type ApnsCmd struct {
 	DeviceToken string
 	UserId      int64
 	MsgId       string
+	Length      int
 	Payload     []byte
 }
