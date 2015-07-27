@@ -5,6 +5,7 @@ import (
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/op/go-logging"
 	"os"
 	"os/signal"
@@ -15,7 +16,6 @@ var (
 	app              *App
 	showVersion      = flag.Bool("version", false, "print version string")
 	sandbox          = flag.Bool("sandbox", false, "connect to sandbox server")
-	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 	nsqdTCPAddrs     = push.StringArray{}
 	lookupdHTTPAddrs = push.StringArray{}
 )
@@ -35,8 +35,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-
 	defer xlog.Close()
+	godotenv.Load()
 
 	if *showVersion {
 		fmt.Println(Version("apns"))
@@ -58,7 +58,6 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	options := &AppOptions{
-		// redisAddr:        *redisAddr,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/anachronistic/apns"
 	"github.com/bitly/go-nsq"
+	"os"
 	"sync"
 )
 
@@ -21,6 +22,10 @@ type AppOptions struct {
 	nsqdTCPAddrs     push.StringArray
 	lookupdHTTPAddrs push.StringArray
 	sandbox          bool
+	prodCert         string
+	prodKey          string
+	sandboxCert      string
+	sandboxKey       string
 }
 
 func NewApp(options *AppOptions) *App {
@@ -46,8 +51,6 @@ func (a *App) Main() {
 func (a *App) createProducers() {
 	a.producers = make(map[string]*nsq.Producer)
 	cfg := nsq.NewConfig()
-	// cfg.UserAgent = fmt.Sprintf("to_nsq/%s go-nsq/%s", version.Binary, nsq.VERSION)
-
 	for _, addr := range a.options.nsqdTCPAddrs {
 		producer, err := nsq.NewProducer(addr, cfg)
 		if err != nil {
@@ -96,15 +99,17 @@ func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	pn := apns.NewPushNotification()
 	pn.DeviceToken = cmd.DeviceToken
 	pn.AddPayload(payload)
-	envDir := "prod"
+
+	cert := a.options.prodCert
+	key := a.options.prodKey
 	gatewayUrl := "gateway.push.apple.com:2195"
 	if a.options.sandbox {
-		envDir = "dev"
+		cert := a.options.sandboxCert
+		key := a.options.sandboxKey
 		gatewayUrl = "gateway.sandbox.push.apple.com:2195"
 	}
-	certificateFile := "cert/" + envDir + "/cert.pem"
-	keyFile := "cert/" + envDir + "/key.unencrypted.pem"
-	client := apns.NewClient(gatewayUrl, certificateFile, keyFile)
+
+	client := apns.NewClient(gatewayUrl, cert, key)
 	resp := client.Send(pn)
 	if !resp.Success {
 		log.Info("apns msgId:%s err: %s", cmd.MsgId, resp.Error)
@@ -115,7 +120,6 @@ func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 }
 
 func (a *App) Exit() {
-
 	close(a.exitChan)
 	a.waitGroup.Wait()
 }
