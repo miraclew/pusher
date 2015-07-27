@@ -52,7 +52,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	mysqlAddr := os.Getenv("MYSQL_DSN")
-	return
 
 	log.Info(Version("router"))
 
