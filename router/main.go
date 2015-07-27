@@ -13,9 +13,8 @@ import (
 )
 
 var (
-	showVersion = flag.Bool("version", false, "print version string")
-	redisAddr   = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
-	// mysqlAddr        = flag.String("mysql", "", "user:pass@tcp(localhost:3306)/pusher?charset=utf8 mysql address to connect")
+	showVersion      = flag.Bool("version", false, "print version string")
+	redisAddr        = flag.String("redis", "127.0.0.1:6379", "<addr>:<port> (127.0.0.1:6379) redis address to connect")
 	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
 	nsqdTCPAddrs     = push.StringArray{}
 	lookupdHTTPAddrs = push.StringArray{}
