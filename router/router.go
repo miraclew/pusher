@@ -76,6 +76,7 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 			return err
 		}
 	} else {
+		log.Info("client is offline: %d", client.UserId)
 		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
 			r.publishToApns(userId, msg)
 		}
@@ -187,9 +188,15 @@ func (r *Router) publishToApns(userId int64, msg *push.Message) error {
 
 	deviceToken, err := redis.String(conn.Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
 	if err != nil {
-		log.Error("pushToIosDevice error: %s", err.Error())
-		return err
+		if err.Error() == "redigo: nil returned" {
+			log.Warning("pushToIosDevice %d, deviceToken not exist", userId)
+			return nil
+		} else {
+			log.Error("pushToIosDevice error: %s", err.Error())
+			return err
+		}
 	}
+
 	if deviceToken == "" {
 		log.Warning("pushToIosDevice %d deviceToken is empty", userId)
 		return nil

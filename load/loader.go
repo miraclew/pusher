@@ -62,7 +62,10 @@ func (l *Loader) setup() {
 		},
 	}
 
-	l.createProducers()
+	err := l.createProducers()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 }
 
 func (l *Loader) tearDown() {
@@ -81,7 +84,7 @@ func (l *Loader) loadClients() error {
 		// setup tokens
 		args := redis.Args{}.Add(fmt.Sprintf("token:%d", userId)).AddFlat(map[string]string{
 			"user_id":     fmt.Sprintf("%d", userId),
-			"device_type": "1",
+			"device_type": "2",
 			"version":     "2.4.0",
 		})
 		_, err := conn.Do("hmset", args...)

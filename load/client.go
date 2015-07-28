@@ -49,7 +49,7 @@ func (c *Client) writeLoop() {
 	c.wQuit = make(chan int)
 
 	for {
-		timer := time.After(2 * time.Second)
+		timer := time.After(time.Second)
 		// log.Println(c.UserId, "writeLoop")
 		select {
 		case <-c.wQuit:
@@ -76,7 +76,7 @@ func (c *Client) readLoop() {
 		}
 
 		c.recvNum++
-		// log.Printf("%d recv:%#v", c.UserId, v)
+		log.Printf("%d recv:%#v", c.UserId, v)
 	}
 }
 
@@ -95,7 +95,9 @@ func (c *Client) sendMessage() {
 		return
 	}
 
-	log.Printf("sendMessage %d=>%d", c.UserId, recieverId)
+	ts := time.Now().UnixNano() / 1000000
+
+	log.Printf("sendMessage (%d) %d=>%d", ts, c.UserId, recieverId)
 	tpl := `{"type":1,
 	"sub_type":1001,
 	"chat_id":0,
@@ -104,11 +106,11 @@ func (c *Client) sendMessage() {
 	"body":"{\"mime\":\"audio\",\"content\":{\"url\":\"http:\\\/\\\/static2.uwang.me\\\/audio\\\/2015\\\/07\\\/27\\\/155b5a03734053.mp3\",\"length\":4}}",
 	"opts":"{\"ttl\":0,\"offline_enable\":true,\"ack_enable\":true,\"apn_enable\":true,\"alert\":\"\"}",
 	"extra":"{\"sender_name\":\"jvcol\",\"sender_avatar\":\"http:\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body_avatar_205.png\",\"sender_vavatar\":\"http:\\\/\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body205.png\",\"age\":25,\"love_status\":1,\"gender\":1,\"address\":\"\\u4e0a\\u6d77\\u6d66\\u4e1c\\u65b0\"}",
-	"timestamp":1437966393768,
-	"id":415
+	"timestamp":%d,
+	"id":%d
 	}`
 
-	var msg = fmt.Sprintf(tpl, c.UserId, recieverId)
+	var msg = fmt.Sprintf(tpl, c.UserId, recieverId, ts, ts)
 	c.Loader.publish(msg)
 }
 
