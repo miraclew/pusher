@@ -1,13 +1,9 @@
 package main
 
 import (
-	// "coding.net/miraclew/pusher/pusher"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"strings"
 	"time"
 )
 
@@ -33,7 +29,7 @@ func NewClient(userId int, loader *Loader) *Client {
 }
 
 func (c *Client) Start() {
-	urlString := fmt.Sprintf("ws://%s/ws?token=%d&v=2.0.5", c.Loader.serverAddr, c.UserId)
+	urlString := fmt.Sprintf("%s?token=%d", c.Loader.wsUrl, c.UserId)
 
 	conn, _, err := websocket.DefaultDialer.Dial(urlString, nil)
 	if err != nil {
@@ -99,37 +95,20 @@ func (c *Client) sendMessage() {
 		return
 	}
 
-	tpl := `{
-        "type":1,
-        "sender_id":"%d",
-        "channel_id":"%d",
-        "payload":{
-            "id":"JmeUCZcjynsZyjpx",
-            "type":4,
-            "sub_type":4002,
-            "chat_id":"0",
-            "sender_id":"100054",
-            "ttl":0,
-            "sent_at":1429708702,
-            "body":{"post":{"id":22,"text":"\u6211\u4eec\u7684\u751f\u6d3b","images":[],"audio":{"url":"","length":0}},"comment":"\u6d51\u8eab\u89e3\u6570"},
-            "extra":{"sender_name":"The","sender_avatar":"http:\/static.uwang.me\/resource\/newavatar\/body_avatar_201.png","sender_vavatar":"http:\/\/static.uwang.me\/resource\/newavatar\/body201.png"}
-        },
-        "opts":{"ttl":0,"offlineEnable":true,"apnEnable":false,"alert":"\u4e00\u6761\u65b0\u6d88\u606f","apn_alert":"\u4f60\u6536\u5230\u4e00\u6761\u6d88\u606f"}
-    }`
+	tpl := `{"type":1,
+	"sub_type":1001,
+	"chat_id":0,
+	"sender_id":%d,
+	"receiver":"%d",
+	"body":"{\"mime\":\"audio\",\"content\":{\"url\":\"http:\\\/\\\/static2.uwang.me\\\/audio\\\/2015\\\/07\\\/27\\\/155b5a03734053.mp3\",\"length\":4}}",
+	"opts":"{\"ttl\":0,\"offline_enable\":true,\"ack_enable\":true,\"apn_enable\":true,\"alert\":\"\"}",
+	"extra":"{\"sender_name\":\"jvcol\",\"sender_avatar\":\"http:\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body_avatar_205.png\",\"sender_vavatar\":\"http:\\\/\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body205.png\",\"age\":25,\"love_status\":1,\"gender\":1,\"address\":\"\\u4e0a\\u6d77\\u6d66\\u4e1c\\u65b0\"}",
+	"timestamp":1437966393768,
+	"id":415
+	}`
+
 	var msg = fmt.Sprintf(tpl, c.UserId, recieverId)
-	// log.Println(msg)
-
-	body := ioutil.NopCloser(strings.NewReader(msg))
-	urlString := fmt.Sprintf("http://%s/direct_msg", c.Loader.serverAddr)
-	resp, err := http.Post(urlString, "", body)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	defer resp.Body.Close()
-	respBody, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(respBody))
+	c.Loader.publish(msg)
 }
 
 func (c *Client) Stop() {
