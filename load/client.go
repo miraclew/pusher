@@ -95,6 +95,7 @@ func (c *Client) sendMessage() {
 		return
 	}
 
+	log.Printf("sendMessage %d=>%d", c.UserId, recieverId)
 	tpl := `{"type":1,
 	"sub_type":1001,
 	"chat_id":0,

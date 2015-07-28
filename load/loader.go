@@ -79,13 +79,12 @@ func (l *Loader) loadClients() error {
 
 		log.Printf("NewClient: %d", userId)
 		// setup tokens
-		var values = map[string]string{
+		args := redis.Args{}.Add(fmt.Sprintf("token:%d", userId)).AddFlat(map[string]string{
 			"user_id":     fmt.Sprintf("%d", userId),
 			"device_type": "1",
 			"version":     "2.4.0",
-		}
-
-		_, err := conn.Do("hmset", redis.Args{}.Add(fmt.Sprintf("token:%d", userId)).AddFlat(values))
+		})
+		_, err := conn.Do("hmset", args...)
 		if err != nil {
 			log.Println("set token error: ", err.Error())
 			return err

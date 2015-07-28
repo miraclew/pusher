@@ -187,7 +187,7 @@ func (r *Router) publishToApns(userId int64, msg *push.Message) error {
 
 	deviceToken, err := redis.String(conn.Do("get", fmt.Sprintf("apn_u2t:%d", userId)))
 	if err != nil {
-		log.Error("pushToIosDevice error: ", err)
+		log.Error("pushToIosDevice error: %s", err.Error())
 		return err
 	}
 	if deviceToken == "" {
