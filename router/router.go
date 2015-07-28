@@ -38,12 +38,16 @@ func NewRouter() *Router {
 func (r *Router) route(msg *push.Message) error {
 	receivers, err := msg.ParseReceivers()
 	if err != nil {
-		return err
+		log.Error("Bad Receivers: %s", err.Error())
 	}
 
 	for _, receiver := range receivers {
-		r.routeDirect(receiver, msg)
+		err := r.routeDirect(receiver, msg)
+		if err != nil {
+
+		}
 	}
+
 	return nil
 }
 
@@ -57,8 +61,7 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 
 	apnFlag := msg.ParseOpts().ApnFlag
 	if apnFlag == push.MSG_OPT_APN_NOTIFY_ONLY && client.DeviceType == push.DEVICE_TYPE_IOS {
-		r.publishToApns(userId, msg)
-		return nil
+		return r.publishToApns(userId, msg)
 	}
 
 	if msg.ParseOpts().OfflineFlag != push.MSG_OPT_OFFLINE_DISABLE {
@@ -76,9 +79,11 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 			return err
 		}
 	} else {
-		log.Info("client is offline: %d", client.UserId)
 		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
-			r.publishToApns(userId, msg)
+			log.Info("client is offline: %d, pushToIosDevice", client.UserId)
+			return r.publishToApns(userId, msg)
+		} else {
+			log.Info("client is offline: %d, skip", client.UserId)
 		}
 	}
 

@@ -91,13 +91,13 @@ func (a *App) startNodeEventConsumer() error {
 		evt := &push.NodeEvent{}
 		err := json.Unmarshal(m.Body, evt)
 		if err != nil {
-			log.Error("body malformed: body=%s err=%s", string(m.Body), err.Error())
+			log.Error("Bad NodeEvent: body=%s err=%s", string(m.Body), err.Error())
 		}
 		if evt.Event == push.NODE_EVENT_ONLINE {
 			body := &push.NodeEventOnline{}
 			err = json.Unmarshal(evt.Body, body)
 			if err != nil {
-				log.Error("node evnt body malformed: body=%s err=%s", string(evt.Body), err.Error())
+				log.Error("Bad NodeEventOnline: body=%s err=%s", string(evt.Body), err.Error())
 				return err
 			}
 
@@ -133,8 +133,8 @@ func (a *App) startServerConsumer() error {
 		var v push.Message
 		err := json.Unmarshal(m.Body, &v)
 		if err != nil {
-			log.Error("body malformed: body=%s err=%s", string(m.Body), err.Error())
-			return err
+			log.Error("Bad Push.Message: body=%s err=%s", string(m.Body), err.Error())
+			return nil // JUST FIN the message if it's not good formed
 		}
 
 		return a.router.route(&v)
