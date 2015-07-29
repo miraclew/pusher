@@ -162,11 +162,13 @@ func (r *Router) processQueue(userId int64) error {
 		var msgId int64
 		msgId, err = strconv.ParseInt(ids[i], 10, 64)
 		if err != nil {
+			log.Error("msgId %s is not integer", ids[i])
+			continue
 		}
 		var msg *push.Message
 		msg, err = push.FindMessage(msgId)
 		if err != nil {
-			log.Error(fmt.Sprintf("FindMessage(%s): %s", msgId, err.Error()))
+			log.Error(fmt.Sprintf("FindMessage(%d): %s", msgId, err.Error()))
 			continue
 		}
 		if msg == nil {
