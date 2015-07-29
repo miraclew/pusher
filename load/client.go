@@ -104,7 +104,7 @@ func (c *Client) sendMessage() {
 	"sender_id":%d,
 	"receiver":"%d",
 	"body":"{\"mime\":\"audio\",\"content\":{\"url\":\"http:\\\/\\\/static2.uwang.me\\\/audio\\\/2015\\\/07\\\/27\\\/155b5a03734053.mp3\",\"length\":4}}",
-	"opts":"{\"ttl\":0,\"offline_enable\":true,\"ack_enable\":true,\"apn_enable\":true,\"alert\":\"\"}",
+	"opts":"{\"ttl\":0,\"offline_flag\":1,\"ack_flag\":1,\"apn_flag\":1,\"alert\":\"\"}",
 	"extra":"{\"sender_name\":\"jvcol\",\"sender_avatar\":\"http:\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body_avatar_205.png\",\"sender_vavatar\":\"http:\\\/\\\/static.uwang.me\\\/resource\\\/newavatar\\\/body205.png\",\"age\":25,\"love_status\":1,\"gender\":1,\"address\":\"\\u4e0a\\u6d77\\u6d66\\u4e1c\\u65b0\"}",
 	"timestamp":%d,
 	"id":%d
