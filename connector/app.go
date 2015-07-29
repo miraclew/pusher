@@ -26,6 +26,7 @@ type App struct {
 type AppOptions struct {
 	wsIp             string
 	wsPort           int
+	wsPortStart      int
 	nodeId           int
 	redisAddr        string
 	clientTimeout    int
@@ -147,7 +148,11 @@ func (a *App) startWS() {
 	n.UseHandler(p)
 
 	go func() {
-		addr := fmt.Sprintf("%s:%d", a.options.wsIp, a.options.wsPort+a.options.nodeId)
+		port := a.options.wsPort
+		if port == 0 {
+			port = a.options.wsPortStart + a.options.nodeId
+		}
+		addr := fmt.Sprintf("%s:%d", a.options.wsIp, port)
 		log.Info("WebSocket listen: %s", addr)
 		err := http.ListenAndServe(addr, n)
 		if err != nil {

@@ -5,9 +5,11 @@ import (
 	"coding.net/miraclew/pusher/xlog"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/op/go-logging"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
@@ -15,7 +17,7 @@ var (
 	app              *App
 	showVersion      = flag.Bool("version", false, "print version string")
 	wsIp             = flag.String("ws-ip", "0.0.0.0", "<ip> to listen on for WebSocket clients")
-	wsPort           = flag.Int("ws-port", 9100, "<port> to listen on for WebSocket clients")
+	wsPort           = flag.Int("ws-port", 0, "<port> to listen on for WebSocket clients, 0 means calculate automaticly")
 	nodeId           = flag.Int("node-id", 0, "id of the connector")
 	clientTimeout    = flag.Int("client-timeout", 3600, "id of the connector")
 	apiAddr          = flag.String("api-addr", "127.0.0.1:9011", "<addr>:<port> to listen on for Http Api clients")
@@ -39,7 +41,6 @@ func init() {
 
 func main() {
 	flag.Parse()
-
 	defer xlog.Close()
 
 	if *showVersion {
@@ -48,6 +49,11 @@ func main() {
 	}
 
 	log.Info(Version("connector"))
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	if *nodeId == 0 {
 		fmt.Println("node-id is required")
@@ -66,10 +72,17 @@ func main() {
 	}()
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
+	wsPortStart := 9100
+	portStart := os.Getenv("WS_PORT_START")
+	if portStart != "" {
+		wsPortStart, _ = strconv.ParseInt(portStart, 10, 64)
+	}
+
 	options := &AppOptions{
 		redisAddr:        *redisAddr,
 		wsIp:             *wsIp,
 		wsPort:           *wsPort,
+		wsPortStart:      wsPortStart,
 		nodeId:           *nodeId,
 		clientTimeout:    *clientTimeout,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
