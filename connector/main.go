@@ -72,17 +72,19 @@ func main() {
 	}()
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
-	wsPortStart := 9100
+	var wsPortStart int64
 	portStart := os.Getenv("WS_PORT_START")
 	if portStart != "" {
 		wsPortStart, _ = strconv.ParseInt(portStart, 10, 64)
+	} else {
+		wsPortStart = 9100
 	}
 
 	options := &AppOptions{
 		redisAddr:        *redisAddr,
 		wsIp:             *wsIp,
 		wsPort:           *wsPort,
-		wsPortStart:      wsPortStart,
+		wsPortStart:      int(wsPortStart),
 		nodeId:           *nodeId,
 		clientTimeout:    *clientTimeout,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
