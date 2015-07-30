@@ -2,7 +2,6 @@ package main
 
 import (
 	"coding.net/miraclew/pusher/push"
-	"encoding/json"
 	"github.com/bitly/go-nsq"
 	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
@@ -86,31 +85,9 @@ func (a *App) startNodeEventConsumer() error {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		return err
 	}
-	a.nodeEventConsumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
-		log.Debug("HandleNodeEvent %s", string(m.Body))
-		evt := &push.NodeEvent{}
-		err := json.Unmarshal(m.Body, evt)
-		if err != nil {
-			log.Error("Bad NodeEvent: body=%s err=%s", string(m.Body), err.Error())
-		}
-		if evt.Event == push.NODE_EVENT_ONLINE {
-			body := &push.NodeEventOnline{}
-			err = json.Unmarshal(evt.Body, body)
-			if err != nil {
-				log.Error("Bad NodeEventOnline: body=%s err=%s", string(evt.Body), err.Error())
-				return err
-			}
 
-			if body.IsOnline {
-				log.Debug("NodeEventOnline: userId: %d online", body.UserId)
-				err = a.router.processQueue(body.UserId)
-				if err != nil {
-					log.Error("processQueue error: %s", err.Error())
-				}
-			}
-		}
-		return nil
-	}))
+	handler := &NodeEventHandler{app: a}
+	a.nodeEventConsumer.AddHandler(handler)
 
 	a.nodeEventConsumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
 	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
@@ -121,6 +98,8 @@ func (a *App) startNodeEventConsumer() error {
 
 func (a *App) startServerConsumer() error {
 	cfg := nsq.NewConfig()
+	cfg.MaxBackoffDuration = time.Second
+
 	var err error
 	a.serverConsumer, err = nsq.NewConsumer("server", "router", cfg)
 	if err != nil {
@@ -128,17 +107,8 @@ func (a *App) startServerConsumer() error {
 		return err
 	}
 
-	a.serverConsumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
-		log.Debug("HandleServerMessage %s", string(m.Body))
-		var v push.Message
-		err := json.Unmarshal(m.Body, &v)
-		if err != nil {
-			log.Error("Bad Push.Message: body=%s err=%s", string(m.Body), err.Error())
-			return nil // JUST FIN the message if it's not good formed
-		}
-
-		return a.router.route(&v)
-	}))
+	handler := &ServerHandler{app: a}
+	a.serverConsumer.AddHandler(handler)
 
 	a.serverConsumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
 	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
