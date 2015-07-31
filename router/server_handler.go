@@ -22,6 +22,9 @@ func (s *ServerHandler) HandleMessage(message *nsq.Message) error {
 	return app.router.route(&v)
 }
 
-func (s *ServerHandler) LogFailedMessage(message *nsq.Message) {
-
+func (s *ServerHandler) LogFailedMessage(m *nsq.Message) {
+	s.app.db.Exec(`INSERT INTO messages
+		(nsqd_address, topic, channel, body, attempts, timestamp) VALUES
+		(?, ?, ?, ?, ?, ?)`,
+		m.NSQDAddress, TOPIC_SERVER, CHANNEL_ROUTER, string(m.Body), m.Attempts, m.Timestamp)
 }

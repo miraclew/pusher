@@ -9,6 +9,11 @@ import (
 	"sync"
 )
 
+const (
+	TOPIC_NAME   = "apns"
+	CHANNEL_NAME = "worker"
+)
+
 type App struct {
 	options   *AppOptions
 	waitGroup sync.WaitGroup
@@ -66,7 +71,7 @@ func (a *App) createProducers() {
 func (a *App) startConsumer() {
 	cfg := nsq.NewConfig()
 	var err error
-	a.consumer, err = nsq.NewConsumer("apns", "worker", cfg)
+	a.consumer, err = nsq.NewConsumer(TOPIC_NAME, CHANNEL_NAME, cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
@@ -87,6 +92,11 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 	}
 
 	return a.pushToDevice(cmd)
+}
+
+func (a *App) LogFailedMessage(m *nsq.Message) {
+	log.Critical("LogFailedMessage(%s, %s, %s, %s, %d, %d)",
+		m.NSQDAddress, TOPIC_NAME, CHANNEL_NAME, string(m.Body), m.Attempts, m.Timestamp)
 }
 
 func (a *App) pushToDevice(cmd *push.ApnsCmd) error {

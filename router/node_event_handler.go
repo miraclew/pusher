@@ -36,6 +36,10 @@ func (n *NodeEventHandler) HandleMessage(message *nsq.Message) error {
 	return nil
 }
 
-func (n *NodeEventHandler) LogFailedMessage(message *nsq.Message) {
+func (n *NodeEventHandler) LogFailedMessage(m *nsq.Message) {
+	n.app.db.Exec(`INSERT INTO messages
+		(nsqd_address, topic, channel, body, attempts, timestamp) VALUES
+		(?, ?, ?, ?, ?, ?)`,
+		m.NSQDAddress, TOPIC_NODE_EVENT, CHANNEL_ROUTER, string(m.Body), m.Attempts, m.Timestamp)
 
 }

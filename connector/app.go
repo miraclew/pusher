@@ -96,6 +96,8 @@ func (a *App) createProducers() {
 
 func (a *App) startConsumer() {
 	cfg := nsq.NewConfig()
+	cfg.MaxBackoffDuration = time.Second
+
 	var err error
 	a.consumer, err = nsq.NewConsumer(fmt.Sprintf("connector-%d", a.options.nodeId), "connector", cfg)
 	if err != nil {
@@ -137,6 +139,11 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 	}
 
 	return nil
+}
+
+func (a *App) LogFailedMessage(m *nsq.Message) {
+	log.Critical("LogFailedMessage(%s, %s, %s, %s, %d, %d)",
+		m.NSQDAddress, fmt.Sprintf("connector-%d", a.options.nodeId), "connector", string(m.Body), m.Attempts, m.Timestamp)
 }
 
 func (a *App) startWS() {
