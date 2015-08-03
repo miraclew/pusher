@@ -93,6 +93,7 @@ audio
 
     {
         url: string // 音频地址
+        length: int // 语音长度
     }
 
 video
