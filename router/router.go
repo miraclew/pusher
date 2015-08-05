@@ -52,7 +52,7 @@ func (r *Router) route(msg *push.Message) error {
 }
 
 func (r *Router) routeDirect(userId int64, msg *push.Message) error {
-	log.Info("routeDirect(%d, %d)", userId, msg.Id)
+	log.Info("routeDirect(userId=%d, msgId=%d)", userId, msg.Id)
 	client, err := push.GetClient(userId)
 	if err != nil {
 		log.Error("GetClient %d error: %s", userId, err.Error())
@@ -91,7 +91,7 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 }
 
 func (r *Router) pushToQueue(userId int64, msgId int64) (int, error) {
-	log.Info("pushToQueue(%d, %d)", userId, msgId)
+	log.Info("pushToQueue(userId=%d, msgId=%d)", userId, msgId)
 	conn := app.redisPool.Get()
 	defer conn.Close()
 
@@ -100,7 +100,7 @@ func (r *Router) pushToQueue(userId int64, msgId int64) (int, error) {
 }
 
 func (r *Router) publishToNode(nodeId int, userId int64, msg *push.Message) error {
-	log.Info("publishToNode(%d, %d) to %d producers", nodeId, msg.Id, len(r.producers))
+	log.Info("publishToNode(nodeId=%d, userId=%d, msgId=%d) to %d producers", nodeId, userId, msg.Id, len(r.producers))
 	cmd := &push.NodeCmd{}
 	cmd.Cmd = push.NODE_CMD_PUSH
 

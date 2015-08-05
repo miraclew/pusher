@@ -131,7 +131,7 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 				log.Error("WriteMessage err: %s", err.Error())
 				return err
 			} else {
-				log.Info("Send OK %d => %d", body.MsgId, body.ReceiverId)
+				log.Info("Send OK msgId: %d => userId: %d", body.MsgId, body.ReceiverId)
 			}
 		} else {
 			log.Warning("User %d is not connected", body.ReceiverId)
