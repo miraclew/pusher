@@ -104,7 +104,8 @@ func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	payload := apns.NewPayload()
 	payload.Alert = cmd.Alert
 	payload.Sound = "ping.aiff"
-	payload.Badge = cmd.Length
+	// payload.Badge = cmd.Length
+	payload.Badge = 1
 	pn := apns.NewPushNotification()
 	pn.DeviceToken = cmd.DeviceToken
 	pn.AddPayload(payload)
@@ -119,6 +120,11 @@ func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	}
 
 	client := apns.NewClient(gatewayUrl, cert, key)
+	pls, err := pn.PayloadString()
+	if err != nil {
+		log.Error("PayloadString err: %s", err.Error())
+	}
+	log.Debug("apns.Client %#v send payload: %s", client, pls)
 	resp := client.Send(pn)
 	if !resp.Success {
 		log.Info("apns msgId:%s err: %s", cmd.MsgId, resp.Error)
