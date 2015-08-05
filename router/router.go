@@ -38,13 +38,13 @@ func NewRouter() *Router {
 func (r *Router) route(msg *push.Message) error {
 	receivers, err := msg.ParseReceivers()
 	if err != nil {
-		log.Error("Bad Receivers: %s", err.Error())
+		log.Error("msgId: %d Bad Receivers: %s Error=%s", msg.Id, msg.Receiver, err.Error())
 	}
 
 	for _, receiver := range receivers {
 		err := r.routeDirect(receiver, msg)
 		if err != nil {
-
+			log.Debug("routeDirect error: %s", err.Error())
 		}
 	}
 
