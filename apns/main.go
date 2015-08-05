@@ -60,10 +60,10 @@ func main() {
 	options := &AppOptions{
 		nsqdTCPAddrs:     nsqdTCPAddrs,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
-		prodCert:         os.Getenv("SANDBOX_CERT"),
-		prodKey:          os.Getenv("SANDBOX_KEY"),
-		sandboxCert:      os.Getenv("PROD_CERT"),
-		sandboxKey:       os.Getenv("PROD_KEY"),
+		sandboxCert:      os.Getenv("SANDBOX_CERT"),
+		sandboxKey:       os.Getenv("SANDBOX_KEY"),
+		prodCert:         os.Getenv("PROD_CERT"),
+		prodKey:          os.Getenv("PROD_KEY"),
 	}
 
 	app = NewApp(options)
