@@ -79,7 +79,9 @@ func (r *Router) routeDirect(userId int64, msg *push.Message) error {
 			return err
 		}
 	} else {
-		if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
+		// TODO: if client is offline, we can't get DeviceType since the key is gone
+		// if client.DeviceType == push.DEVICE_TYPE_IOS && msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
+		if msg.ParseOpts().ApnFlag == push.MSG_OPT_APN_DEFAULT {
 			log.Info("client is offline: %d, pushToIosDevice", client.UserId)
 			return r.publishToApns(userId, msg)
 		} else {
