@@ -44,7 +44,7 @@ func (r *Router) route(msg *push.Message) error {
 	for _, receiver := range receivers {
 		err := r.routeDirect(receiver, msg)
 		if err != nil {
-			log.Debug("routeDirect error: %s", err.Error())
+			log.Error("routeDirect error: %s", err.Error())
 		}
 	}
 
