@@ -4,8 +4,8 @@ import (
 	"coding.net/miraclew/pusher/push"
 	"encoding/json"
 	"fmt"
-	"github.com/anachronistic/apns"
 	"github.com/bitly/go-nsq"
+	"github.com/timehop/apns"
 	"sync"
 )
 
@@ -20,6 +20,7 @@ type App struct {
 	exitChan  chan int
 	consumer  *nsq.Consumer
 	producers map[string]*nsq.Producer
+	client    *apns.Client
 }
 
 type AppOptions struct {
@@ -33,9 +34,30 @@ type AppOptions struct {
 }
 
 func NewApp(options *AppOptions) *App {
+	cert := options.prodCert
+	key := options.prodKey
+	gatewayUrl := "gateway.push.apple.com:2195"
+	if options.sandbox {
+		cert = options.sandboxCert
+		key = options.sandboxKey
+		gatewayUrl = "gateway.sandbox.push.apple.com:2195"
+	}
+
+	client, err := apns.NewClient(gatewayUrl, cert, key)
+	if err != nil {
+		log.Fatalf("could not create new client: %s", err.Error())
+	}
+
+	go func() {
+		for f := range client.FailedNotifs {
+			log.Error("Notif", f.Notif.ID, "failed with", f.Err.Error())
+		}
+	}()
+
 	a := &App{
 		options:  options,
 		exitChan: make(chan int),
+		client:   &client,
 	}
 
 	return a
@@ -102,35 +124,22 @@ func (a *App) LogFailedMessage(m *nsq.Message) {
 func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	log.Info("apns pushToDevice %#v", cmd)
 	payload := apns.NewPayload()
-	payload.Alert = cmd.Alert
-	payload.Sound = "ping.aiff"
+	payload.APS.Alert.Body = cmd.Alert
+	payload.APS.Sound = "ping.aiff"
 	// payload.Badge = cmd.Length
-	payload.Badge = 1
-	pn := apns.NewPushNotification()
+	badge := 1
+	payload.APS.Badge = &badge
+
+	pn := apns.NewNotification()
 	pn.DeviceToken = cmd.DeviceToken
-	pn.AddPayload(payload)
+	pn.Priority = apns.PriorityImmediate
+	pn.Payload = payload
+	pn.ID = cmd.MsgId
 
-	cert := a.options.prodCert
-	key := a.options.prodKey
-	gatewayUrl := "gateway.push.apple.com:2195"
-	if a.options.sandbox {
-		cert = a.options.sandboxCert
-		key = a.options.sandboxKey
-		gatewayUrl = "gateway.sandbox.push.apple.com:2195"
-	}
+	log.Debug("apns.Client %#v send payload: %#v", a.client, pn)
+	a.client.Send(pn)
+	log.Info("apns send msgId:%s", cmd.MsgId)
 
-	client := apns.NewClient(gatewayUrl, cert, key)
-	pls, err := pn.PayloadString()
-	if err != nil {
-		log.Error("PayloadString err: %s", err.Error())
-	}
-	log.Debug("apns.Client %#v send payload: %s", client, pls)
-	resp := client.Send(pn)
-	if !resp.Success {
-		log.Info("apns msgId:%s err: %s", cmd.MsgId, resp.Error)
-	} else {
-		log.Info("apns msgId:%s success", cmd.MsgId)
-	}
 	return nil
 }
 
