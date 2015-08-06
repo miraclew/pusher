@@ -43,7 +43,8 @@ func NewApp(options *AppOptions) *App {
 		gatewayUrl = "gateway.sandbox.push.apple.com:2195"
 	}
 
-	client, err := apns.NewClient(gatewayUrl, cert, key)
+	log.Info("create client: %s %s %s", gatewayUrl, cert, key)
+	client, err := apns.NewClientWithFiles(gatewayUrl, cert, key)
 	if err != nil {
 		log.Fatalf("could not create new client: %s", err.Error())
 	}
