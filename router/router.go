@@ -164,7 +164,7 @@ func (r *Router) processQueue(userId int64) error {
 		var msgId int64
 		msgId, err = strconv.ParseInt(ids[i], 10, 64)
 		if err != nil {
-			log.Error("msgId %s is not integer", ids[i])
+			log.Error("msgId %s is not integer in key:%s", ids[i], key)
 			continue
 		}
 		var msg *push.Message
