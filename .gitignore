@@ -1,2 +1,6 @@
-pusherd/pusherd
-pusherd/v.go
+*/*.log
+.env
+version.go
+router/router
+connector/connector
+load/load
