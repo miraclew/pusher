@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	ROUTE_TYPE_DIRECT  = 1
-	ROUTE_TYPE_CHANNEL = 2
-	ROUTE_TYPE_BULK    = 3
+	TYPE_PRIVATE = 1
+	TYPE_GROUP   = 2
+	TYPE_NOTIFY  = 3
 
 	MSG_TYPE_ACK = 6001
 
@@ -42,10 +42,12 @@ type Message struct {
 	Id        int64  `json:"id"`
 	Type      int    `json:"type"`
 	SubType   int    `db:"sub_type" json:"sub_type"`
+	Mime      int    `db:"mime" json:"mime"`
 	SenderId  int64  `db:"sender_id" json:"sender_id"`
 	Receiver  string `json:"receiver"`
 	ChatId    int64  `db:"chat_id" json:"chat_id"`
-	Body      string `json:"body"`
+	Content   string `json:"content"`
+	Text      string `json:"text"`
 	Opts      string `json:"opts"`
 	Extra     string `json:"extra"`
 	Timestamp int64  `json:"timestamp"` // milseconds
@@ -66,9 +68,9 @@ type MsgSendOpts struct {
 	DeviceType  int    `json:"device_type"`
 }
 
-func NewMessage(typ int, senderId int64, receiver string, chatId int64, body string, opts string) *Message {
+func NewMessage(typ int, senderId int64, receiver string, chatId int64, content string, opts string) *Message {
 	return &Message{
-		Receiver: receiver, Type: typ, Body: body, ChatId: chatId,
+		Receiver: receiver, Type: typ, Content: content, ChatId: chatId,
 		SenderId: senderId, Opts: opts, Timestamp: time.Now().UnixNano() / 1000000,
 	}
 }
@@ -101,7 +103,7 @@ func (m *Message) ParseReceivers() ([]int64, error) {
 }
 
 func (m *Message) Save() error {
-	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, chat_id, body, opts, extra, timestamp) VALUES (:type, :sender_id, :receiver, :chat_id, :body, :opts, :extra, :timestamp)`, m)
+	res, err := db.NamedExec(`INSERT INTO messages (type, sender_id, receiver, chat_id, content, opts, extra, timestamp) VALUES (:type, :sender_id, :receiver, :chat_id, :content, :opts, :extra, :timestamp)`, m)
 	if err != nil {
 		return err
 	}
@@ -115,9 +117,9 @@ func (m *Message) Save() error {
 }
 
 func (m *Message) GetPayload() ([]byte, error) {
-	body := map[string]interface{}{}
+	content := map[string]interface{}{}
 	extra := map[string]interface{}{}
-	err := json.Unmarshal([]byte(m.Body), &body)
+	err := json.Unmarshal([]byte(m.Content), &content)
 	if err != nil {
 		return nil, err
 	}
@@ -125,15 +127,18 @@ func (m *Message) GetPayload() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return json.Marshal(map[string]interface{}{
 		"id":        fmt.Sprintf("%d", m.Id),
 		"type":      m.Type,
 		"sub_type":  m.SubType,
+		"mime":      m.Mime,
 		"chat_id":   m.ChatId,
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
 		"sent_at":   m.Timestamp / 1000,
-		"body":      body,
+		"content":   content,
+		"text":      m.Text,
 		"extra":     extra,
 	})
 }
