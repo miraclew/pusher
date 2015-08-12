@@ -54,9 +54,9 @@ type Message struct {
 }
 
 type ClientMessage struct {
-	Type      int    `json:"type"`
-	AckMsgId  string `json:"ack_msg_id"`
-	Timestamp int64  `json:"timestamp"`
+	Type      int   `json:"type"`
+	AckMsgId  int64 `json:"ack_msg_id"`
+	Timestamp int64 `json:"timestamp"`
 }
 
 type MsgSendOpts struct {
@@ -118,17 +118,6 @@ func (m *Message) Save() error {
 
 // payload sent to client
 func (m *Message) GetPayload() ([]byte, error) {
-	content := map[string]interface{}{}
-	extra := map[string]interface{}{}
-	err := json.Unmarshal([]byte(m.Content), &content)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal([]byte(m.Extra), &extra)
-	if err != nil {
-		return nil, err
-	}
-
 	return json.Marshal(map[string]interface{}{
 		"id":        fmt.Sprintf("%d", m.Id),
 		"type":      m.Type,
@@ -138,9 +127,9 @@ func (m *Message) GetPayload() ([]byte, error) {
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
 		"sent_at":   m.Timestamp / 1000,
-		"content":   content,
+		"content":   m.Content,
 		"text":      m.Text,
-		"extra":     extra,
+		"extra":     m.Extra,
 	})
 }
 

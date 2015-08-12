@@ -81,8 +81,8 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func handleAck(userId int64, msgId string) {
-	log.Debug("HandleAck %d %s \n", userId, msgId)
+func handleAck(userId int64, msgId int64) {
+	log.Debug("HandleAck %d %d \n", userId, msgId)
 
 	conn := app.redisPool.Get()
 	defer conn.Close()
