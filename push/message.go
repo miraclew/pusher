@@ -116,6 +116,7 @@ func (m *Message) Save() error {
 	return nil
 }
 
+// payload sent to client
 func (m *Message) GetPayload() ([]byte, error) {
 	content := map[string]interface{}{}
 	extra := map[string]interface{}{}
