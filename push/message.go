@@ -126,7 +126,7 @@ func (m *Message) GetPayload() ([]byte, error) {
 		"chat_id":   m.ChatId,
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
-		"sent_at":   m.Timestamp / 1000,
+		"sent_at":   m.Timestamp,
 		"content":   m.Content,
 		"text":      m.Text,
 		"extra":     m.Extra,
