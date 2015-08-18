@@ -25,11 +25,6 @@ Type & Subtype:
     TYPE_USER_MSG = 1;  // 用户发送的消息
     ST_UM_CHAT = 1001;  // 聊天
     ST_UM_TYPING = 1002; // 输入中
-    ST_UM_FIREND_ADD = 1003; // 好友申请
-    ST_UM_FIREND_CONFIRM = 1004; // 好友确认
-    ST_UM_DONATE_COIN = 1005; // 赠送钻石
-    ST_UM_RATING = 1006; // 评价
-    ST_UM_PAY = 1007; // 付费后给艺人发消息
 
     TYPE_CHAT_EVENT = 2 // 对话事件
     ST_CE_CREATED = 2001
@@ -70,7 +65,10 @@ Type & Subtype:
 
     {
         mime: string
-        content: string
+        content: {...}
+		is_system: int
+		is_bottle: int
+		attach: int// 1: above, 2: below
     }
 
 不同类型的mime对应content定义:
@@ -100,7 +98,17 @@ video
     {
         url: string // 视频地址
     }
-
+    
+link
+ 
+	{
+		type: int // 1. URL, 2. Post, 
+		icon: string
+		title: string
+		desc: string
+		link: string
+	}
+	
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
 
     {
