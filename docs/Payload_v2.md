@@ -68,7 +68,7 @@ Type & Subtype:
         content: {...}
 		is_system: int
 		is_bottle: int
-		attach: int// 1: above, 2: below
+		attach: int// 贴着 1: above, 2: below
     }
 
 不同类型的mime对应content定义:
