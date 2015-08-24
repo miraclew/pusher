@@ -102,12 +102,19 @@ video
 link
  
 	{
-		type: int // 1. URL, 2. Post, 
+		type: int
 		icon: string
 		title: string
 		desc: string
 		link: string
 	}
+	
+    const LINK_TYPE_URL             = 1; // 外部链接网址
+    const LINK_TYPE_POST            = 2; // 帖子详情
+    const LINK_TYPE_LOVE_ROOM       = 3; // 恋人空间
+    const LINK_TYPE_LOVE_ROOM_POST  = 4; // 恋人空间帖子详情
+    const LINK_TYPE_LOVER           = 5; // 恋人专属
+
 	
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
 
