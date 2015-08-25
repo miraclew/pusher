@@ -109,14 +109,15 @@ link
 		icon: string
 		title: string
 		desc: string
-		link: string
+		url: string
 	}
 	
-    const LINK_TYPE_URL             = 1; // 外部链接网址
-    const LINK_TYPE_POST            = 2; // 帖子详情
-    const LINK_TYPE_LOVE_ROOM       = 3; // 恋人空间
-    const LINK_TYPE_LOVE_ROOM_POST  = 4; // 恋人空间帖子详情
-    const LINK_TYPE_LOVER           = 5; // 恋人专属
+    const LINK_TYPE_URL             = 1; // 网址
+    const LINK_TYPE_URL_BROWSER     = 2; // 网址(系统浏览器打开)
+    const LINK_TYPE_POST            = 3; // 帖子详情
+    const LINK_TYPE_LOVE_ROOM       = 4; // 恋人空间
+    const LINK_TYPE_LOVE_ROOM_POST  = 5; // 恋人空间帖子详情
+    const LINK_TYPE_LOVER           = 6; // 恋人专属
 
 	
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
