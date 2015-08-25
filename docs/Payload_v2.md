@@ -10,6 +10,7 @@
         sender_id: int,
         ttl: int, // 消息有效时间
         sent_at: int, // 发送时间(push服务收到该消息时间)
+        sent_at_ms: int, // 发送时间(毫秒)
         body: {
 
         },
