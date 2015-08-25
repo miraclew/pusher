@@ -47,8 +47,11 @@ Type & Subtype:
     ST_LE_NEW_LIKE            = 7001 //点赞
     ST_LE_NEW_COMMENT         = 7002 //评论
     ST_LE_NEW_POST            = 7003 //帖子
-
     ST_LE_ROOM_INFO           = 7005 //房间信息
+    ST_LE_ROOM_INFO           = 7005 ; //房间信息
+    ST_LE_GIFT                = 7006 ; //礼物
+    ST_LE_HEART               = 7007 ; //真心话
+
 
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
