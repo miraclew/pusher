@@ -10,6 +10,7 @@
         sender_id: int,
         ttl: int, // 消息有效时间
         sent_at: int, // 发送时间(push服务收到该消息时间)
+        sent_at_ms: int, // 发送时间(毫秒)
         body: {
 
         },
@@ -47,8 +48,10 @@ Type & Subtype:
     ST_LE_NEW_LIKE            = 7001 //点赞
     ST_LE_NEW_COMMENT         = 7002 //评论
     ST_LE_NEW_POST            = 7003 //帖子
+    ST_LE_ROOM_INFO           = 7005 ; //房间信息
+    ST_LE_GIFT                = 7006 ; //礼物
+    ST_LE_HEART               = 7007 ; //真心话
 
-    ST_LE_ROOM_INFO           = 7005 //房间信息
 
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
@@ -68,7 +71,7 @@ Type & Subtype:
         content: {...}
 		is_system: int
 		is_bottle: int
-		attach: int// 1: above, 2: below
+		attach: int// 贴着 1: above, 2: below
     }
 
 不同类型的mime对应content定义:
@@ -102,12 +105,20 @@ video
 link
  
 	{
-		type: int // 1. URL, 2. Post, 
+		type: int
 		icon: string
 		title: string
 		desc: string
-		link: string
+		url: string
 	}
+	
+    const LINK_TYPE_URL             = 1; // 网址
+    const LINK_TYPE_URL_BROWSER     = 2; // 网址(系统浏览器打开)
+    const LINK_TYPE_POST            = 3; // 帖子详情
+    const LINK_TYPE_LOVE_ROOM       = 4; // 恋人空间
+    const LINK_TYPE_LOVE_ROOM_POST  = 5; // 恋人空间帖子详情
+    const LINK_TYPE_LOVER           = 6; // 恋人专属
+
 	
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
 
