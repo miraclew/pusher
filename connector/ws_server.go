@@ -43,7 +43,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	userId := client.UserId
-	log.Info("New client, node=%d v=%s/%s p=%s token=%s userId=%d", app.options.nodeId, client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId)
+	log.Info("New client, node=%d v=%s/%s p=%s token=%s userId=%d/%s", app.options.nodeId, client.Version, client.DeviceTypeName(), conn.Subprotocol(), token, userId, conn.RemoteAddr().String())
 	client.NodeId = app.options.nodeId
 	err = client.Save()
 	if err != nil {
@@ -57,7 +57,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 	for {
 		_, b, err2 := conn.ReadMessage()
 		if err2 != nil {
-			log.Info("Disconnect %d, %s", userId, err2.Error())
+			log.Info("Disconnect %d/%s, %s", userId, conn.RemoteAddr().String(), err2.Error())
 			RemoveConnection(userId)
 			break
 		} else {
@@ -65,6 +65,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			if data == "p" || data == "ping" {
 				client.Touch(app.options.clientTimeout)
 				conn.WriteMessage(websocket.TextMessage, []byte("q"))
+				log.Debug("Pong => %d/%s", userId, conn.RemoteAddr().String())
 				continue
 			}
 
