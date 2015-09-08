@@ -11,6 +11,7 @@ var connections = make(map[int64]*websocket.Conn)
 func AddConnection(userId int64, conn *websocket.Conn) {
 	old, ok := connections[userId]
 	if ok && old != conn {
+		log.Debug("AddConnection close old connection: %d/%s", userId, old.RemoteAddr().String())
 		old.Close()
 	}
 
@@ -23,6 +24,8 @@ func RemoveConnection(userId int64, conn *websocket.Conn) {
 	if ok && toRemove == conn {
 		delete(connections, userId)
 		push.RemoveClient(userId)
+	} else {
+		log.Debug("RemoveConnection %d/%s but new connection exist", userId, conn.RemoteAddr().String())
 	}
 
 	// go OnClientOnline(userId, false)
