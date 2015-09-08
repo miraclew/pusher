@@ -58,7 +58,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 		_, b, err2 := conn.ReadMessage()
 		if err2 != nil {
 			log.Info("Disconnect %d/%s, %s", userId, conn.RemoteAddr().String(), err2.Error())
-			RemoveConnection(userId)
+			RemoveConnection(userId, conn)
 			break
 		} else {
 			data := string(b)

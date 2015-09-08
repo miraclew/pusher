@@ -9,19 +9,22 @@ import (
 var connections = make(map[int64]*websocket.Conn)
 
 func AddConnection(userId int64, conn *websocket.Conn) {
-	// THIS'LL cause bug, comment
-	// old, ok := connections[userId]
-	// if ok {
-	// 	old.Close()
-	// }
+	old, ok := connections[userId]
+	if ok && old != conn {
+		old.Close()
+	}
+
 	connections[userId] = conn
 	go OnClientOnline(userId, true)
 }
 
-func RemoveConnection(userId int64) {
-	delete(connections, userId)
+func RemoveConnection(userId int64, conn *websocket.Conn) {
+	toRemove, ok := connections[userId]
+	if ok && toRemove == conn {
+		delete(connections, userId)
+		push.RemoveClient(userId)
+	}
 
-	push.RemoveClient(userId)
 	// go OnClientOnline(userId, false)
 }
 
