@@ -65,7 +65,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			if data == "p" || data == "ping" {
 				client.Touch(app.options.clientTimeout)
 				conn.WriteMessage(websocket.TextMessage, []byte("q"))
-				log.Debug("Pong => %d/%s", userId, conn.RemoteAddr().String())
+				// log.Debug("Pong => %d/%s", userId, conn.RemoteAddr().String())
 				continue
 			}
 
