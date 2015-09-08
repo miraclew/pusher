@@ -9,10 +9,11 @@ import (
 var connections = make(map[int64]*websocket.Conn)
 
 func AddConnection(userId int64, conn *websocket.Conn) {
-	old, ok := connections[userId]
-	if ok {
-		old.Close()
-	}
+	// THIS'LL cause bug, comment
+	// old, ok := connections[userId]
+	// if ok {
+	// 	old.Close()
+	// }
 	connections[userId] = conn
 	go OnClientOnline(userId, true)
 }
