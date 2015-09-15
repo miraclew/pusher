@@ -2,6 +2,7 @@ package push
 
 import (
 	"coding.net/miraclew/pusher/util"
+	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"strconv"
@@ -39,6 +40,9 @@ func AuthClient(token string) (*Client, error) {
 		return nil, err
 	}
 	// log.Debug("token:%s %#v", token, v)
+	if _, ok := v["user_id"]; !ok {
+		return nil, errors.New("Token invalid")
+	}
 
 	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
 	if err != nil {
