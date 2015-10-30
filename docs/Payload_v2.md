@@ -207,7 +207,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_COMMENT ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
         "comment": "hello"
@@ -216,7 +216,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_GIFTING ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
     }
@@ -224,7 +224,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_GIFT ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "user_id" : 124555,
         "amount" : 122,
     }
@@ -233,7 +233,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_LIKE ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "user_id" : 124555,
         "like_count": 5
     }
@@ -241,7 +241,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_NB ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "online" : 123,
         "total" : 10000,
     }
@@ -249,7 +249,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_VIEWER ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
         "avatar" : "abc",
@@ -258,7 +258,7 @@ Apns 推送的消息格式 (iOS)
 ### ST_LIVE_END ###
 
     {
-        "host_id" : 124555,
+        "live_id" : 124555,
         "view_count" : 12,
         "like_count" : 12,
         "gift_count" : 12,
