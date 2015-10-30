@@ -51,6 +51,13 @@ Type & Subtype:
     ST_LE_ROOM_INFO           = 7005 ; //房间信息
     ST_LE_GIFT                = 7006 ; //礼物
     ST_LE_HEART               = 7007 ; //真心话
+    
+    TYPE_LIVE_EVENT           = 8
+    ST_LIVE_COMMENT           = 8001 // 评论
+    ST_LIVE_GIFT              = 8002 // 打赏
+    ST_LIVE_LIKE              = 8003 // 点赞
+    ST_LIVE_NB                = 8004 // 数字更新
+    ST_LIVE_VIEWER            = 8005 // 新观众
 
 
     // 推送 (点击打开应用)
