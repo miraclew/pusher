@@ -54,11 +54,11 @@ Type & Subtype:
 
     TYPE_LIVE_EVENT           = 8
     ST_LIVE_COMMENT           = 8001 // 评论
-    ST_LIVE_GIFTING           = 8002 // 打赏
+    ST_LIVE_REWARD            = 8002 // 打赏
     ST_LIVE_LIKE              = 8003 // 点赞
     ST_LIVE_NB                = 8004 // 数字更新
     ST_LIVE_VIEWER            = 8005 // 新观众
-    ST_LIVE_GIFT              = 8006 // 收到礼物
+    ST_LIVE_RECV_REWARD       = 8006 // 收到礼物
     ST_LIVE_END               = 8007 // 直播结束
 
     // 推送 (点击打开应用)
@@ -213,7 +213,7 @@ Apns 推送的消息格式 (iOS)
         "comment": "hello"
     }
 
-### ST_LIVE_GIFTING ###
+### ST_LIVE_REWARD ###
 
     {
         "live_id" : 124555,
@@ -221,7 +221,7 @@ Apns 推送的消息格式 (iOS)
         "nickname" : "abc",
     }
 
-### ST_LIVE_GIFT ###
+### ST_LIVE_RECV_REWARD ###
 
     {
         "live_id" : 124555,
