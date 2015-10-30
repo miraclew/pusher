@@ -51,14 +51,15 @@ Type & Subtype:
     ST_LE_ROOM_INFO           = 7005 ; //房间信息
     ST_LE_GIFT                = 7006 ; //礼物
     ST_LE_HEART               = 7007 ; //真心话
-    
+
     TYPE_LIVE_EVENT           = 8
     ST_LIVE_COMMENT           = 8001 // 评论
-    ST_LIVE_GIFT              = 8002 // 打赏
+    ST_LIVE_GIFTING           = 8002 // 打赏
     ST_LIVE_LIKE              = 8003 // 点赞
     ST_LIVE_NB                = 8004 // 数字更新
     ST_LIVE_VIEWER            = 8005 // 新观众
-
+    ST_LIVE_GIFT              = 8006 // 收到礼物
+    ST_LIVE_END               = 8007 // 直播结束
 
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
@@ -108,9 +109,9 @@ video
     {
         url: string // 视频地址
     }
-    
+
 link
- 
+
 	{
 		type: int
 		icon: string
@@ -118,7 +119,7 @@ link
 		desc: string
 		url: string
 	}
-	
+
     const LINK_TYPE_URL             = 1; // 网址
     const LINK_TYPE_URL_BROWSER     = 2; // 网址(系统浏览器打开)
     const LINK_TYPE_POST            = 3; // 帖子详情
@@ -126,7 +127,7 @@ link
     const LINK_TYPE_LOVE_ROOM_POST  = 5; // 恋人空间帖子详情
     const LINK_TYPE_LOVER           = 6; // 恋人专属
 
-	
+
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
 
     {
@@ -200,6 +201,70 @@ Apns 推送的消息格式 (iOS)
             "rid": int,
             "sent_at": int
         }
+    }
+
+## TYPE_LIVE_EVENT 直播消息推送 ##
+### ST_LIVE_COMMENT ###
+
+    {
+        "host_id" : 124555,
+        "user_id" : 124555,
+        "nickname" : "abc",
+        "comment": "hello"
+    }
+
+### ST_LIVE_GIFTING ###
+
+    {
+        "host_id" : 124555,
+        "user_id" : 124555,
+        "nickname" : "abc",
+    }
+
+### ST_LIVE_GIFT ###
+
+    {
+        "host_id" : 124555,
+        "user_id" : 124555,
+        "amount" : 122,
+    }
+
+
+### ST_LIVE_LIKE ###
+
+    {
+        "host_id" : 124555,
+        "user_id" : 124555,
+        "like_count": 5
+    }
+
+### ST_LIVE_NB ###
+
+    {
+        "host_id" : 124555,
+        "online" : 123,
+        "total" : 10000,
+    }
+
+### ST_LIVE_VIEWER ###
+
+    {
+        "host_id" : 124555,
+        "user_id" : 124555,
+        "nickname" : "abc",
+        "avatar" : "abc",
+    }
+
+### ST_LIVE_END ###
+
+    {
+        "host_id" : 124555,
+        "view_count" : 12,
+        "like_count" : 12,
+        "gift_count" : 12,
+        "live_duration" : 12,
+        "sum_duration" : 12,
+        "amount" : 122,
     }
 
 ## Examples ##
