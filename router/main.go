@@ -18,6 +18,8 @@ var (
 	apnsDev          = flag.Bool("dev", false, "run on dev mode, apns push on dev env")
 	nsqdTCPAddrs     = push.StringArray{}
 	lookupdHTTPAddrs = push.StringArray{}
+	nsqTopic         = flag.String("nsq-topic", "server", "nsq topic")
+	nsqChannel       = flag.String("nsq-channel", "router", "nsq topic channel")
 	app              *App
 )
 
@@ -66,6 +68,8 @@ func main() {
 	options := &AppOptions{
 		redisAddr:        *redisAddr,
 		nsqdTCPAddrs:     nsqdTCPAddrs,
+		nsqTopic:         *nsqTopic,
+		nsqChannel:       *nsqChannel,
 		lookupdHTTPAddrs: lookupdHTTPAddrs,
 		mysqlAddr:        mysqlAddr,
 		apnsDev:          *apnsDev,

@@ -31,6 +31,8 @@ type AppOptions struct {
 	redisAddr        string
 	nsqdTCPAddrs     push.StringArray
 	lookupdHTTPAddrs push.StringArray
+	nsqTopic         string
+	nsqChannel       string
 	mysqlAddr        string
 	apnsDev          bool
 }
@@ -107,7 +109,7 @@ func (a *App) startServerConsumer() error {
 	cfg.MaxBackoffDuration = time.Second
 
 	var err error
-	a.serverConsumer, err = nsq.NewConsumer(TOPIC_SERVER, CHANNEL_ROUTER, cfg)
+	a.serverConsumer, err = nsq.NewConsumer(a.options.nsqTopic, CHANNEL_ROUTER, cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		return err
