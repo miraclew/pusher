@@ -1,0 +1,5 @@
+2015-11-02
+
+change: router add nsq-topic, nsq-channel as program arguments
+change: deploy app into bin directory
+
