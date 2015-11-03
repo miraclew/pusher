@@ -29,7 +29,7 @@ func init() {
 	flag.Var(&nsqdTCPAddrs, "nsqd-tcp-address", "(127.0.0.1:4150) nsqd TCP address (may be given multiple times)")
 	flag.Var(&lookupdHTTPAddrs, "lookupd-http-address", "(127.0.0.1:4161) lookupd HTTP address (may be given multiple times)")
 	var err error
-	log, err = xlog.Open("router")
+	log, err = xlog.Open(*nsqChannel)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

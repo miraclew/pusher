@@ -26,5 +26,5 @@ func (s *ServerHandler) LogFailedMessage(m *nsq.Message) {
 	s.app.db.Exec(`INSERT INTO messages
 		(nsqd_address, topic, channel, body, attempts, timestamp) VALUES
 		(?, ?, ?, ?, ?, ?)`,
-		m.NSQDAddress, TOPIC_SERVER, CHANNEL_ROUTER, string(m.Body), m.Attempts, m.Timestamp)
+		m.NSQDAddress, s.app.options.nsqTopic, s.app.options.nsqChannel, string(m.Body), m.Attempts, m.Timestamp)
 }

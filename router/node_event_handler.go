@@ -40,6 +40,6 @@ func (n *NodeEventHandler) LogFailedMessage(m *nsq.Message) {
 	n.app.db.Exec(`INSERT INTO messages
 		(nsqd_address, topic, channel, body, attempts, timestamp) VALUES
 		(?, ?, ?, ?, ?, ?)`,
-		m.NSQDAddress, TOPIC_NODE_EVENT, CHANNEL_ROUTER, string(m.Body), m.Attempts, m.Timestamp)
+		m.NSQDAddress, TOPIC_NODE_EVENT, n.app.options.nsqChannel, string(m.Body), m.Attempts, m.Timestamp)
 
 }

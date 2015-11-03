@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	TOPIC_SERVER     = "server"
-	CHANNEL_ROUTER   = "router"
 	TOPIC_NODE_EVENT = "node-event"
 )
 
@@ -88,7 +86,7 @@ func (a *App) Main() {
 func (a *App) startNodeEventConsumer() error {
 	cfg := nsq.NewConfig()
 	var err error
-	a.nodeEventConsumer, err = nsq.NewConsumer(TOPIC_NODE_EVENT, CHANNEL_ROUTER, cfg)
+	a.nodeEventConsumer, err = nsq.NewConsumer(TOPIC_NODE_EVENT, a.options.nsqChannel, cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		return err
@@ -109,7 +107,7 @@ func (a *App) startServerConsumer() error {
 	cfg.MaxBackoffDuration = time.Second
 
 	var err error
-	a.serverConsumer, err = nsq.NewConsumer(a.options.nsqTopic, CHANNEL_ROUTER, cfg)
+	a.serverConsumer, err = nsq.NewConsumer(a.options.nsqTopic, a.options.nsqChannel, cfg)
 	if err != nil {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		return err
