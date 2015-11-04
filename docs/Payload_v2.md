@@ -220,6 +220,7 @@ Apns 推送的消息格式 (iOS)
     {
         "live_id" : 124555,
         "user_id" : 124555,
+        'support_id':1,
         "nickname" : "abc",
     }
 
@@ -228,6 +229,7 @@ Apns 推送的消息格式 (iOS)
     {
         "live_id" : 124555,
         "user_id" : 124555,
+        "nickname" : "abc",
         "amount" : 122,
     }
 
