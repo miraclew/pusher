@@ -211,7 +211,8 @@ Apns 推送的消息格式 (iOS)
         "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
-        "comment": "hello"
+        "comment": "hello",
+        "type":1
     }
 
 ### ST_LIVE_REWARD ###
