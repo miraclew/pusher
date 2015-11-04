@@ -57,9 +57,10 @@ Type & Subtype:
     ST_LIVE_REWARD            = 8002 // 打赏
     ST_LIVE_LIKE              = 8003 // 点赞
     ST_LIVE_NB                = 8004 // 数字更新
-    ST_LIVE_VIEWER            = 8005 // 新观众
-    ST_LIVE_RECV_REWARD       = 8006 // 收到礼物
-    ST_LIVE_END               = 8007 // 直播结束
+    ST_LIVE_VIEWER_ENTER      = 8005 // 观众进入
+    ST_LIVE_VIEWER_EXIT       = 8006 // 观众离开
+    ST_LIVE_RECV_REWARD       = 8007 // 收到礼物
+    ST_LIVE_END               = 8008 // 直播结束
 
     // 推送 (点击打开应用)
     const TYPE_NOTIFICATION_EVENT   = 5;
