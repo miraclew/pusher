@@ -243,17 +243,28 @@ Apns 推送的消息格式 (iOS)
 
     {
         "live_id" : 124555,
-        "online" : 123,
-        "total" : 10000,
+        "online_viewers" : 123,
+        "total_viewers" : 10000,
     }
 
-### ST_LIVE_VIEWER ###
+### ST_LIVE_VIEWER_ENTER ###
 
     {
         "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
         "avatar" : "abc",
+        "online_viewers" : 123,
+        "total_viewers" : 10000,
+    }
+
+### ST_LIVE_VIEWER_EXIT ###
+
+    {
+        "live_id" : 124555,
+        "user_id" : 124555,
+        "online_viewers" : 123,
+        "total_viewers" : 10000,
     }
 
 ### ST_LIVE_END ###
