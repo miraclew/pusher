@@ -217,6 +217,7 @@ func (r *Router) publishToApns(userId int64, msg *push.Message) error {
 	cmd.MsgId = fmt.Sprintf("%d", msg.Id)
 	cmd.UserId = userId
 	cmd.Alert = msg.ParseOpts().Alert
+	cmd.Payload, _ = msg.GetPayload()
 
 	b, err := json.Marshal(cmd)
 	if err != nil {

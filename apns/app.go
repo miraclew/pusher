@@ -125,11 +125,14 @@ func (a *App) LogFailedMessage(m *nsq.Message) {
 func (a *App) pushToDevice(cmd *push.ApnsCmd) error {
 	log.Info("apns pushToDevice %#v", cmd)
 	payload := apns.NewPayload()
-	payload.APS.Alert.Body = cmd.Alert
+	payload.APS.Alert.Title = cmd.Alert
 	payload.APS.Sound = "ping.aiff"
 	// payload.Badge = cmd.Length
 	badge := 1
 	payload.APS.Badge = &badge
+	if cmd.Payload != nil {
+		payload.APS.Alert.Body = string(cmd.Payload)
+	}
 
 	pn := apns.NewNotification()
 	pn.DeviceToken = cmd.DeviceToken
