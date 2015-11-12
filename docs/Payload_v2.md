@@ -211,7 +211,8 @@ Apns 推送的消息格式 (iOS)
         "live_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
-        "comment": "hello"
+        "comment": "hello",
+        "type":1
     }
 
 ### ST_LIVE_REWARD ###
@@ -219,6 +220,7 @@ Apns 推送的消息格式 (iOS)
     {
         "live_id" : 124555,
         "user_id" : 124555,
+        "support_id":1,
         "nickname" : "abc",
     }
 
@@ -227,6 +229,7 @@ Apns 推送的消息格式 (iOS)
     {
         "live_id" : 124555,
         "user_id" : 124555,
+        "nickname" : "abc",
         "amount" : 122,
     }
 
@@ -263,6 +266,8 @@ Apns 推送的消息格式 (iOS)
     {
         "live_id" : 124555,
         "user_id" : 124555,
+        "nickname" : "abc",
+        "avatar" : "abc",
         "online_viewers" : 123,
         "total_viewers" : 10000,
     }
@@ -271,11 +276,6 @@ Apns 推送的消息格式 (iOS)
 
     {
         "live_id" : 124555,
-        "view_count" : 12,
-        "like_count" : 12,
-        "reward_count" : 12,
-        "live_duration" : 12,
-        "sum_duration" : 12,
         "amount" : 122,
     }
 
