@@ -26,7 +26,7 @@ func setupRedis() {
 	SetRedisPool(pool)
 }
 
-func TestClient(t *testing.T) {
+func _TestClient(t *testing.T) {
 	setupRedis()
 	client := &Client{}
 	client.UserId = 111

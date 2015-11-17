@@ -52,7 +52,7 @@ func (r *Router) route(msg *push.Message) error {
 }
 
 func (r *Router) routeDirect(userId int64, msg *push.Message) error {
-	log.Info("routeDirect(userId=%d, msgId=%d)", userId, msg.Id)
+	log.Info("routeDirect(userId=%d, msgId=%d, %#v)", userId, msg.Id, msg.ParseOpts())
 	client, err := push.GetClient(userId)
 	if err != nil {
 		log.Error("GetClient %d error: %s", userId, err.Error())
