@@ -70,7 +70,7 @@ Type & Subtype:
     const ST_NE_TREE_UPGRADE        = 5004; // 爱情树升级
     const ST_NE_NEW_FANS            = 5005; // 新粉丝
     const ST_NE_NEW_WATERING        = 5006; // 新浇水
-
+    const ST_NE_NEW_FRIEND          = 5007;  // 朋友圈
 ## Body 定义 ##
 
 ### 聊天消息 TYPE_USER_MSG/ST_UM_CHAT ###
