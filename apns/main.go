@@ -64,6 +64,7 @@ func main() {
 		sandboxKey:       os.Getenv("SANDBOX_KEY"),
 		prodCert:         os.Getenv("PROD_CERT"),
 		prodKey:          os.Getenv("PROD_KEY"),
+		sandbox:          *sandbox,
 	}
 
 	app = NewApp(options)
