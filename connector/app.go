@@ -107,7 +107,7 @@ func (a *App) startConsumer() {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
 	}
-	a.consumer.AddHandler(a)
+	a.consumer.AddConcurrentHandlers(a, 100)
 
 	a.consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
 	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
