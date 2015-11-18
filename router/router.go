@@ -39,6 +39,7 @@ func (r *Router) route(msg *push.Message) error {
 	receivers, err := msg.ParseReceivers()
 	if err != nil {
 		log.Error("msgId: %d Bad Receivers: %s Error=%s", msg.Id, msg.Receiver, err.Error())
+		return err
 	}
 
 	for _, receiver := range receivers {
