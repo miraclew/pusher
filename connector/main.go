@@ -15,7 +15,7 @@ import (
 
 var (
 	app              *App
-	showVersion      = flag.Bool("version", false, "print version string")
+	showVersion      = flag.Bool("version", false, "print version stringx")
 	wsIp             = flag.String("ws-ip", "0.0.0.0", "<ip> to listen on for WebSocket clients")
 	wsPort           = flag.Int("ws-port", 0, "<port> to listen on for WebSocket clients, 0 means calculate automaticly")
 	nodeId           = flag.Int("node-id", 0, "id of the connector")
