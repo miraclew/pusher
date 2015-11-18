@@ -97,6 +97,9 @@ func (a *App) createProducers() {
 func (a *App) startConsumer() {
 	cfg := nsq.NewConfig()
 	cfg.MaxBackoffDuration = time.Second
+	cfg.MaxAttempts = 1
+	cfg.MaxRequeueDelay = time.Second
+	cfg.DefaultRequeueDelay = time.Second
 
 	var err error
 	a.consumer, err = nsq.NewConsumer(fmt.Sprintf("connector-%d", a.options.nodeId), "connector", cfg)
@@ -118,6 +121,7 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 	err := json.Unmarshal(message.Body, cmd)
 	if err != nil {
 		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
+		return nil
 	}
 	if cmd.Cmd == push.NODE_CMD_PUSH {
 		body := &push.NodeCmdPush{}
@@ -129,7 +133,7 @@ func (a *App) HandleMessage(message *nsq.Message) error {
 			err := conn.WriteMessage(websocket.TextMessage, body.Payload)
 			if err != nil {
 				log.Error("WriteMessage err: %s", err.Error())
-				return err
+				return nil
 			} else {
 				log.Info("Send OK msgId: %d => userId: %d", body.MsgId, body.ReceiverId)
 			}
