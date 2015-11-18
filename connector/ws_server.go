@@ -38,7 +38,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	client, err := push.AuthClient(token)
 	if err != nil {
-		log.Warning("Auth failed, protocol=%s token=%s, err: %s", conn.Subprotocol(), token, err.Error())
+		// log.Warning("Auth failed, protocol=%s token=%s, err: %s", conn.Subprotocol(), token, err.Error())
 		return
 	}
 
@@ -65,7 +65,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			if data == "p" || data == "ping" {
 				client.Touch(app.options.clientTimeout)
 				conn.WriteMessage(websocket.TextMessage, []byte("q"))
-				log.Debug("Pong => %d/%s", userId, conn.RemoteAddr().String())
+				// log.Debug("Pong => %d/%s", userId, conn.RemoteAddr().String())
 				continue
 			}
 
@@ -76,7 +76,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 			}
 
 			if msg.Type == push.MSG_TYPE_ACK {
-				handleAck(userId, msg.AckMsgId)
+				go handleAck(userId, msg.AckMsgId)
 			}
 		}
 	}
