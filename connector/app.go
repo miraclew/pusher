@@ -116,6 +116,7 @@ func (a *App) startConsumer() {
 }
 
 func (a *App) HandleMessage(message *nsq.Message) error {
+	log.Debug("HandleMessage")
 	go func() {
 		// log.Debug("HandleMessage %s", string(message.Body))
 		cmd := &push.NodeCmd{}
