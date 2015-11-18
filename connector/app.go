@@ -107,7 +107,7 @@ func (a *App) startConsumer() {
 		log.Error("nsq.NewConsumer error: %s", err.Error())
 		panic(fmt.Sprintf("nsq.NewConsumer error: %s", err.Error()))
 	}
-	a.consumer.AddConcurrentHandlers(a, 10000)
+	a.consumer.AddConcurrentHandlers(a, 1000)
 
 	a.consumer.ConnectToNSQDs(a.options.nsqdTCPAddrs)
 	log.Info("ConnectToNSQDs %s", a.options.nsqdTCPAddrs.String())
@@ -116,33 +116,31 @@ func (a *App) startConsumer() {
 }
 
 func (a *App) HandleMessage(message *nsq.Message) error {
-	go func() {
-		// log.Debug("HandleMessage %s", string(message.Body))
-		cmd := &push.NodeCmd{}
-		err := json.Unmarshal(message.Body, cmd)
-		if err != nil {
-			log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
-			return
-		}
-		if cmd.Cmd == push.NODE_CMD_PUSH {
-			body := &push.NodeCmdPush{}
-			err = json.Unmarshal(cmd.Body, body)
+	// log.Debug("HandleMessage %s", string(message.Body))
+	cmd := &push.NodeCmd{}
+	err := json.Unmarshal(message.Body, cmd)
+	if err != nil {
+		log.Error("body malformed: body=%s err=%s", string(message.Body), err.Error())
+		return nil
+	}
+	if cmd.Cmd == push.NODE_CMD_PUSH {
+		body := &push.NodeCmdPush{}
+		err = json.Unmarshal(cmd.Body, body)
 
-			log.Debug("NodeCmdPush: msgId=%d receiverId: %d payload: %s", body.MsgId, body.ReceiverId, string(body.Payload))
-			conn := GetConnection(body.ReceiverId)
-			if conn != nil {
-				err := conn.WriteMessage(websocket.TextMessage, body.Payload)
-				if err != nil {
-					log.Error("WriteMessage err: %s", err.Error())
-					return
-				} else {
-					log.Info("Send OK msgId: %d => userId: %d", body.MsgId, body.ReceiverId)
-				}
+		log.Debug("NodeCmdPush: msgId=%d receiverId: %d payload: %s", body.MsgId, body.ReceiverId, string(body.Payload))
+		conn := GetConnection(body.ReceiverId)
+		if conn != nil {
+			err := conn.WriteMessage(websocket.TextMessage, body.Payload)
+			if err != nil {
+				log.Error("WriteMessage err: %s", err.Error())
+				return nil
 			} else {
-				log.Warning("User %d is not connected", body.ReceiverId)
+				log.Info("Send OK msgId: %d => userId: %d", body.MsgId, body.ReceiverId)
 			}
+		} else {
+			log.Warning("User %d is not connected", body.ReceiverId)
 		}
-	}()
+	}
 
 	return nil
 }
