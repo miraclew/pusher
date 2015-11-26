@@ -71,6 +71,7 @@ Type & Subtype:
     const ST_NE_NEW_FANS            = 5005; // 新粉丝
     const ST_NE_NEW_WATERING        = 5006; // 新浇水
     const ST_NE_NEW_FRIEND          = 5007;  // 朋友圈
+    const ST_NE_NEW_MESSAGE          = 5008;  // 新消息
 ## Body 定义 ##
 
 ### 聊天消息 TYPE_USER_MSG/ST_UM_CHAT ###
@@ -127,6 +128,7 @@ link
     const LINK_TYPE_LOVE_ROOM       = 4; // 恋人空间
     const LINK_TYPE_LOVE_ROOM_POST  = 5; // 恋人空间帖子详情
     const LINK_TYPE_LOVER           = 6; // 恋人专属
+    const LINK_TYPE_LIVE          = 7; // 进入直播
 
 
 ### 对话中的系统消息 ST_CE_SYS_MSG ###
