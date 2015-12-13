@@ -115,16 +115,16 @@ func (m *Message) Save() error {
 }
 
 func (m *Message) GetPayload() ([]byte, error) {
-	body := map[string]interface{}{}
-	extra := map[string]interface{}{}
-	err := json.Unmarshal([]byte(m.Body), &body)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal([]byte(m.Extra), &extra)
-	if err != nil {
-		return nil, err
-	}
+	// body := map[string]interface{}{}
+	// extra := map[string]interface{}{}
+	// err := json.Unmarshal([]byte(m.Body), &body)
+	// if err != nil {
+	// 	return nil, errors.New("body should be a valid json: " + err.Error())
+	// }
+	// err := json.Unmarshal([]byte(m.Extra), &extra)
+	// if err != nil {
+	// 	return nil, errors.New("extra should be a valid json: " + err.Error())
+	// }
 	return json.Marshal(map[string]interface{}{
 		"id":        fmt.Sprintf("%d", m.Id),
 		"type":      m.Type,
@@ -133,8 +133,8 @@ func (m *Message) GetPayload() ([]byte, error) {
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
 		"sent_at":   m.Timestamp / 1000,
-		"body":      body,
-		"extra":     extra,
+		"body":      m.Body,
+		"extra":     m.Extra,
 	})
 }
 
