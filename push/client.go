@@ -2,7 +2,6 @@ package push
 
 import (
 	"coding.net/miraclew/pusher/util"
-	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"strconv"
@@ -34,35 +33,16 @@ func AuthClient(token string) (*Client, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
-	v, err := redis.StringMap(conn.Do("hgetall", "token:"+token))
+	userId, err := redis.Int64(conn.Do("get", "token:"+token))
 
-	if err != nil {
-		return nil, err
-	}
-	// log.Debug("token:%s %#v", token, v)
-	if _, ok := v["user_id"]; !ok {
-		return nil, errors.New("Token invalid")
-	}
-
-	userId, err := strconv.ParseInt(v["user_id"], 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	if v["device_type"] == "" {
-		v["device_type"] = "2"
-	}
-
-	deviceType, err := strconv.ParseInt(v["device_type"], 10, 64)
 	if err != nil {
 		return nil, err
 	}
 
 	client := &Client{}
 	client.UserId = userId
-	client.Version = v["version"]
-	client.DeviceType = int(deviceType)
-	// client.NodeId = app.options.nodeId
+	client.Version = "1.0"                  // FIXME:
+	client.DeviceType = DEVICE_TYPE_ANDROID // TODO: FIXME
 	return client, nil
 }
 

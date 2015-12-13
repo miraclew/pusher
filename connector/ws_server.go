@@ -38,7 +38,7 @@ func WSHandler(res http.ResponseWriter, req *http.Request) {
 
 	client, err := push.AuthClient(token)
 	if err != nil {
-		// log.Warning("Auth failed, protocol=%s token=%s, err: %s", conn.Subprotocol(), token, err.Error())
+		log.Warning("Auth failed, protocol=%s token=%s, err: %s", conn.Subprotocol(), token, err.Error())
 		return
 	}
 
