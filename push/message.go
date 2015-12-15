@@ -44,6 +44,7 @@ type Message struct {
 	SubType   int    `db:"sub_type" json:"sub_type"`
 	SenderId  int64  `db:"sender_id" json:"sender_id"`
 	Receiver  string `json:"receiver"`
+	Format    int    `json:"format"`
 	ChatId    int64  `db:"chat_id" json:"chat_id"`
 	Body      string `json:"body"`
 	Opts      string `json:"opts"`
@@ -129,6 +130,7 @@ func (m *Message) GetPayload() ([]byte, error) {
 		"id":        fmt.Sprintf("%d", m.Id),
 		"type":      m.Type,
 		"sub_type":  m.SubType,
+		"format":    m.Format,
 		"chat_id":   m.ChatId,
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
