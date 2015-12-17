@@ -10,7 +10,7 @@ var connections = make(map[int64]*websocket.Conn)
 
 func AddConnection(userId int64, conn *websocket.Conn) {
 	old, ok := connections[userId]
-	if ok && old != conn {
+	if ok {
 		log.Debug("AddConnection close old connection: %d/%s", userId, old.RemoteAddr().String())
 		old.Close()
 	}
