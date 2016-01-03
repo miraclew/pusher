@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin:     func(r *http.Request) bool { return true },
-	Subprotocols:    []string{"gx-v1", "gx-v2"},
+	Subprotocols:    []string{"gw-v1", "gw-v2"},
 }
 
 func WSHandler(res http.ResponseWriter, req *http.Request) {

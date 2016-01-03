@@ -9,8 +9,7 @@
         chat_id: int,
         sender_id: int,
         ttl: int, // 消息有效时间
-        sent_at: int, // 发送时间(push服务收到该消息时间)
-        sent_at_ms: int, // 发送时间(毫秒)
+        timestamp: int, // 发送时间(push服务收到该消息时间)(毫秒)
         body: {
 
         },
@@ -200,7 +199,7 @@ Apns 推送的消息格式 (iOS)
             "type": int,
             "sub_type": int,
             "rid": int,
-            "sent_at": int
+            "timestamp": int
         }
     }
 
@@ -288,7 +287,7 @@ Apns 推送的消息格式 (iOS)
         sub_type: 1001,
         chat_id: 123,
         ttl: 0,
-        sent_at: 124555,
+        timestamp: 124555,
         body: {
             mime: "text",
             content: {
@@ -307,7 +306,7 @@ Apns 推送的消息格式 (iOS)
         chat_id: 123,
         sender_id: 456,
         ttl: 0,
-        sent_at: 124555,
+        timestamp: 124555,
         body: {
             mime: "image",
             content: {
@@ -325,7 +324,7 @@ Apns 推送的消息格式 (iOS)
         chat_id: 0,
         sender_id: 456,
         ttl: 3600,
-        sent_at: 124555,
+        timestamp: 124555,
         body: {
             text: "嘎嘎送礼10个钻石给呵呵",
             times: 3
@@ -341,7 +340,7 @@ Apns 推送的消息格式 (iOS)
         chat_id: 1,
         sender_id: 456,
         ttl: 3600,
-        sent_at: 124555,
+        timestamp: 124555,
         body: {
             text: 3
         }
@@ -356,7 +355,7 @@ Apns 推送的消息格式 (iOS)
         chat_id: 1,
         sender_id: 456,
         ttl: 3600,
-        sent_at: 124555,
+        timestamp: 124555,
         body: {
             id: 29,
             artist_id: 1,
