@@ -39,17 +39,19 @@ type ServerMsg struct {
 
 // server => router
 type Message struct {
-	Id        int64  `json:"id"`
-	Type      int    `json:"type"`
-	SubType   int    `db:"sub_type" json:"sub_type"`
-	SenderId  int64  `db:"sender_id" json:"sender_id"`
-	Receiver  string `json:"receiver"`
-	Format    int    `json:"format"`
-	ChatId    int64  `db:"chat_id" json:"chat_id"`
-	Body      string `json:"body"`
-	Opts      string `json:"opts"`
-	Extra     string `json:"extra"`
-	Timestamp int64  `json:"timestamp"` // milseconds
+	Id           int64  `json:"id"`
+	Type         int    `json:"type"`
+	SubType      int    `db:"sub_type" json:"sub_type"`
+	ReceiverType int    `db:"receiver_type" json:"receiver_type"`
+	SenderId     int64  `db:"sender_id" json:"sender_id"`
+	Receiver     string `json:"receiver"`
+	Format       int    `json:"format"`
+	ChatId       int64  `db:"chat_id" json:"chat_id"`
+	Title        string `json:"title"`
+	Body         string `json:"body"`
+	Opts         string `json:"opts"`
+	Extra        string `json:"extra"`
+	Timestamp    int64  `json:"timestamp"` // milseconds
 }
 
 type ClientMessage struct {
