@@ -76,14 +76,14 @@ Type & Subtype:
 ### ST_LIVE_CHAT ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "content": "hello"
     }
 
 ### ST_LIVE_SEND_GIFT ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         'gift_id': 1,
         'quantity': 10,
         'text': "aaa赠送了你礼物",
@@ -94,7 +94,7 @@ Type & Subtype:
 ### ST_LIVE_LIKE ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "user_id" : 124555,
         "like_count": 5
     }
@@ -102,7 +102,7 @@ Type & Subtype:
 ### ST_LIVE_NUM_UPDATE ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "online_viewers" : 123,
         "total_viewers" : 10000,
     }
@@ -110,7 +110,7 @@ Type & Subtype:
 ### ST_LIVE_VIEWER_ENTER ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
         "avatar" : "abc",
@@ -121,7 +121,7 @@ Type & Subtype:
 ### ST_LIVE_VIEWER_EXIT ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "user_id" : 124555,
         "online_viewers" : 123,
         "total_viewers" : 10000,
@@ -130,7 +130,7 @@ Type & Subtype:
 ### ST_LIVE_END ###
 
     {
-        "live_id" : 124555,
+        "channel_id" : 124555,
         "coins_spend" : 122,
         "coins_earn": 12,
     }
