@@ -42,8 +42,8 @@ Type & Subtype:
     ST_LIVE_SEND_GIFT           = 8002; // 打赏
     ST_LIVE_LIKE                = 8003;// 点赞
     ST_LIVE_NUM_UPDATE          = 8004;// 数字更新
-    ST_LIVE_VIEWER_ENTER        = 8005;// 观众进入
-    ST_LIVE_VIEWER_EXIT         = 8006;// 观众离开
+    ST_LIVE_USER_ENTER        = 8005;// 观众进入
+    ST_LIVE_USER_EXIT         = 8006;// 观众离开
     ST_LIVE_RECV_GIFT           = 8007;// 收到打赏
     ST_LIVE_END                 = 8008; // 直播结束
     ST_LIVE_PAUSE               = 8010; // 直播暂停
@@ -103,28 +103,28 @@ Type & Subtype:
 
     {
         "channel_id" : 124555,
-        "online_viewers" : 123,
-        "total_viewers" : 10000,
+        "online_users" : 123,
+        "total_users" : 10000,
     }
 
-### ST_LIVE_VIEWER_ENTER ###
+### ST_LIVE_USER_ENTER ###
 
     {
         "channel_id" : 124555,
         "user_id" : 124555,
         "nickname" : "abc",
         "avatar" : "abc",
-        "online_viewers" : 123,
-        "total_viewers" : 10000,
+        "online_users" : 123,
+        "total_users" : 10000,
     }
 
-### ST_LIVE_VIEWER_EXIT ###
+### ST_LIVE_USER_EXIT ###
 
     {
         "channel_id" : 124555,
         "user_id" : 124555,
-        "online_viewers" : 123,
-        "total_viewers" : 10000,
+        "online_users" : 123,
+        "total_users" : 10000,
     }
 
 ### ST_LIVE_END ###
