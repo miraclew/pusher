@@ -137,6 +137,7 @@ func (m *Message) GetPayload() ([]byte, error) {
 		"sender_id": fmt.Sprintf("%d", m.SenderId),
 		"ttl":       m.ParseOpts().TTL,
 		"timestamp": m.Timestamp,
+		"title":     m.Title,
 		"body":      m.Body,
 		"extra":     m.Extra,
 	})
