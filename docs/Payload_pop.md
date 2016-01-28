@@ -140,7 +140,6 @@ Type & Subtype:
 
     {
         "channel_id" : 124555,
-        "live_id" : 122,
         "user_id": 123, //秒
         "nickname" : "abc",
         "avatar" : "abc"
