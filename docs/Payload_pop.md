@@ -133,6 +133,7 @@ Type & Subtype:
         "channel_id" : 124555,
         "coins_spend" : 122,
         "coins_earn": 12,
+        "live_duration": 123, //秒
     }
 
 ## Examples ##
