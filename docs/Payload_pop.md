@@ -136,6 +136,16 @@ Type & Subtype:
         "live_duration": 123, //秒
     }
 
+### ST_LIVE_OPEN ###
+
+    {
+        "channel_id" : 124555,
+        "live_id" : 122,
+        "user_id": 123, //秒
+        "nickname" : "abc",
+        "avatar" : "abc"
+    }
+
 ## Examples ##
 
 文字聊天消息
