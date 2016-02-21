@@ -31,6 +31,7 @@ Type & Subtype:
 
     TYPE_CHAT = 1;  // 用户发送的消息
     ST_CHAT_MSG = 1001;  // 聊天
+    ST_GIFT_MSG = 1002;  // 礼物
 
     TYPE_NOTIFY             = 2 // 对话事件
     ST_NOTIFY_NEW_FOLLOWER  = 2001 // 新粉丝
@@ -52,10 +53,21 @@ Type & Subtype:
 
 ## Body 定义 ##
 
-### 聊天消息 TYPE_CHAT/ST_UM_CHAT ###
+### 聊天消息 TYPE_CHAT/ST_CHAT_MSG ###
 
     body = "消息内容"
 
+### 聊天消息 TYPE_CHAT/ST_GIFT_MSG ###
+
+    body = "JSON"
+    
+    JSON = {
+        'gift_name': string,
+        'gift_icon': string,
+        'quantity' int,
+        'unit' string,
+        'total_fee': int,
+    }
 
 ## TYPE_NOTIFY ##
 ### ST_NOTIFY_NEW_FOLLOWER ###
