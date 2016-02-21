@@ -62,6 +62,7 @@ Type & Subtype:
     body = "JSON"
     
     JSON = {
+        'gift_id': int,
         'gift_name': string,
         'gift_icon': string,
         'quantity' int,
